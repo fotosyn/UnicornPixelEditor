@@ -183,17 +183,30 @@ function editPalette() {
         const colorsArray = newPaletteColors.split(',').map(color => color.trim());
 
         if (colorsArray.length > 0) {
+            const oldSelectedColor = selectedColor; // Store the currently selected color
+            const oldPaletteColors = paletteColors.slice(); // Create a copy of the old palette colors
             paletteColors = colorsArray;
             createPalette();
 
+            // Create a mapping of old color to new color
+            const colorMapping = {};
+            oldPaletteColors.forEach((oldColor, index) => {
+                colorMapping[oldColor] = paletteColors[index];
+            });
+
+            // Update grid elements to reflect the new palette colors
             for (let x = 0; x < gridSize; x++) {
                 for (let y = 0; y < gridSize; y++) {
                     const currentColor = grid[x][y];
-                    const index = paletteColors.indexOf(currentColor);
-                    if (index !== -1) {
-                        grid[x][y] = paletteColors[index];
+                    if (colorMapping.hasOwnProperty(currentColor)) {
+                        grid[x][y] = colorMapping[currentColor];
                     }
                 }
+            }
+
+            // Update the selected color if it has changed in the palette
+            if (colorMapping.hasOwnProperty(oldSelectedColor)) {
+                selectedColor = colorMapping[oldSelectedColor];
             }
 
             drawGrid();
