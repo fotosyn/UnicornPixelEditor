@@ -310,6 +310,78 @@ function copyToClipboard() {
     }
 }
 
+
+// Add global variables to track the "Box" drawing mode and box coordinates
+let isDrawingBox = false;
+let boxStartX, boxStartY, boxEndX, boxEndY;
+
+// Function to enter "Box" drawing mode
+function enableBoxDrawing() {
+    isDrawingBox = true;
+    canvas.style.cursor = 'crosshair'; // Change the cursor to crosshair
+}
+
+// Function to exit "Box" drawing mode
+function disableBoxDrawing() {
+    isDrawingBox = false;
+    canvas.style.cursor = 'auto'; // Change the cursor back to the default
+}
+
+// Event listener for mouse down
+canvas.addEventListener('mousedown', function (e) {
+    if (isDrawingBox) {
+        boxStartX = e.offsetX;
+        boxStartY = e.offsetY;
+    }
+});
+
+// Event listener for mouse move
+canvas.addEventListener('mousemove', function (e) {
+    if (isDrawingBox) {
+        boxEndX = e.offsetX;
+        boxEndY = e.offsetY;
+
+        // Calculate the width and height of the box
+        const width = boxEndX - boxStartX;
+        const height = boxEndY - boxStartY;
+
+        // Clear the canvas to remove the previous box
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Redraw the grid and other elements
+        drawGrid();
+
+        // Draw the current box (as the mouse is being dragged)
+        ctx.fillStyle = selectedColor; // Use the selected color
+        ctx.fillRect(boxStartX, boxStartY, width, height);
+    }
+});
+
+// Event listener for mouse up
+canvas.addEventListener('mouseup', function (e) {
+    if (isDrawingBox) {
+        boxEndX = e.offsetX;
+        boxEndY = e.offsetY;
+
+        // Calculate the width and height of the box
+        const width = boxEndX - boxStartX;
+        const height = boxEndY - boxStartY;
+
+        // Draw the final box
+        ctx.fillStyle = selectedColor; // Use the selected color
+        ctx.fillRect(boxStartX, boxStartY, width, height);
+
+        // Disable "Box" drawing mode
+        disableBoxDrawing();
+
+        // Redraw the grid and other elements
+        drawGrid();
+    }
+});
+
+
+
+
 // Initialize palette and grid
 createPalette();
 drawGrid();
