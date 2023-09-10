@@ -2,7 +2,7 @@
 let gridSize = 16; // Default grid size
 let selectedColor = ''; // Default color
 let grid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill('#000000'));
-let paletteColors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+let paletteColors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'];
 
 // Initialize color maps
 const colorToIndexMap = {};
@@ -100,11 +100,14 @@ function setColor(color) {
     selectedColor = color;
 }
 
-// Function to change the grid size
 function changeGridSize(size) {
     gridSize = parseInt(size);
 
-    // Set canvas dimensions based on grid size
+    // Clear the grid and initialize it with the default color
+    grid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill('#000000'));
+
+    // Update the canvas size
+    const canvas = document.getElementById('pixel-canvas');
     if (gridSize === 53) {
         canvas.width = gridSize * 16;
         canvas.height = 11 * 16; // Set the height to 11 as an exception
@@ -113,15 +116,11 @@ function changeGridSize(size) {
         canvas.height = gridSize * 16;
     }
 
-    // Reinitialize the grid with the default color
-    grid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill('#000000'));
-
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     // Redraw the grid
     drawGrid();
 }
+
+
 
 // Function to export the grid data
 function exportGrid() {
@@ -287,6 +286,29 @@ function shiftDown() {
     drawGrid();
 }
 
+// Function to select all text in the export text box
+function selectAllText() {
+    const exportTextBox = document.getElementById("export-text-box");
+    exportTextBox.select();
+    document.execCommand("copy");
+}
+
+// Function to copy the export data to the clipboard
+function copyToClipboard() {
+    const exportTextBox = document.getElementById("export-text-box");
+    const copyAlert = document.getElementById("copy-alert");
+
+    exportTextBox.select();
+    document.execCommand("copy");
+
+    if (exportTextBox.value.trim() === '') {
+        copyAlert.textContent = "Click 'Generate Code' to populate the text area first.";
+    } else {
+        exportTextBox.select();
+        document.execCommand("copy");
+        copyAlert.textContent = "You can now paste this into your Python script";
+    }
+}
 
 // Initialize palette and grid
 createPalette();

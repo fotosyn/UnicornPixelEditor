@@ -4,41 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unicorn Pixel Art Editor</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div class="controls">
-        <label for="grid-size">Grid Size:</label>
-        <select id="grid-size" onchange="changeGridSize(this.value)">
-            <option value="16" selected>16x16</option>
-            <option value="53">53x11</option>
-            <option value="32">32x32</option>
-        </select>
-        <button id="edit-palette-button" onclick="editPalette()">Edit Palette</button>
-    </div>
-    <div class="palette" id="color-palette">
-        <!-- Add empty color swatch as the default -->
-        <div class="swatch" style="background-color: #000000;"></div>
-        <!-- Add color swatches here -->
-    </div>
-    <canvas id="pixel-canvas" width="256" height="256"></canvas>
+    <div class="container">
+        <h1 class="mt-4">Unicorn Pixel Art Editor</h1>
 
-    <div>
-        <button id="shift-left">Shift Left</button>
-        <button id="shift-right">Shift Right</button>
-        <button id="shift-up">Shift Up</button>
-        <button id="shift-down">Shift Down</button>
+        <div class="controls mt-4">
+            <label for="grid-size">Grid Size:</label>
+            <select id="grid-size" class="form-control" onchange="changeGridSize(this.value)">
+                <option value="16" selected>16x16 (Stellar Unicorn)</option>
+                <option value="53">53x11 (Galactic Unicorn)</option>
+                <option value="32">32x32 (Cosmic Unicorn)</option>
+            </select>
+        </div>
+
+        <div class="palette mt-4" id="color-palette">
+            <div class="swatch" style="background-color: #000000;"></div>
+        </div>
+        
+        <div class="edit-palette">
+            <button id="edit-palette-button" class="btn btn-primary mt-2" onclick="editPalette()">Edit Palette</button>
+        </div>
+
+        <canvas id="pixel-canvas" class="mt-4" width="256" height="256"></canvas>
+
+        <div class="mt-2">
+            <button id="shift-left" class="btn btn-primary">Shift Left</button>
+            <button id="shift-right" class="btn btn-primary">Shift Right</button>
+            <button id="shift-up" class="btn btn-primary">Shift Up</button>
+            <button id="shift-down" class="btn btn-primary">Shift Down</button>
+        </div>
+
+        <!-- Wrap the Export button in its own div with the same styling -->
+        <div class="mt-5">
+            <button class="export-button btn btn-success" id="export-button" onclick="exportGrid()">Generate code</button>
+            <button id="select-all-button"  class="btn btn-secondary" onclick="selectAllText()">Select All</button>
+            <button id="copy-clipboard-button" class="btn btn-secondary"  onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+
+        <div class="mt-2">
+            <p id="copy-alert" class="copy-alert"></p> <!-- Add this paragraph element -->
+        </div>
+
+        <!-- Text box for export data -->
+        <textarea class="export-text-box form-control mt-4" id="export-text-box"></textarea>
     </div>
 
-    <!-- Wrap the Export button in its own div with the same styling -->
-    <div class="export-container">
-        <button class="export-button" id="export-button" onclick="exportGrid()">Export</button>
-    </div>
-
-    <!-- Text box for export data -->
-    <textarea class="export-text-box" id="export-text-box"></textarea>
-
-        <!-- Include the external JavaScript file -->
-        <script src="script.js"></script>
+    <!-- Include Bootstrap and your external JavaScript file -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
