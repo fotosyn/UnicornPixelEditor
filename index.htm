@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicorn Pixel Art Editor</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <div class="controls">
+        <label for="grid-size">Grid Size:</label>
+        <select id="grid-size" onchange="changeGridSize(this.value)">
+            <option value="16" selected>16x16</option>
+            <option value="53">53x11</option>
+            <option value="32">32x32</option>
+        </select>
+        <button id="edit-palette-button" onclick="editPalette()">Edit Palette</button>
+    </div>
+    <div class="palette" id="color-palette">
+        <!-- Add empty color swatch as the default -->
+        <div class="swatch" style="background-color: #000000;"></div>
+        <!-- Add color swatches here -->
+    </div>
+    <canvas id="pixel-canvas" width="256" height="256"></canvas>
+
+    <div>
+        <button id="shift-left">Shift Left</button>
+        <button id="shift-right">Shift Right</button>
+        <button id="shift-up">Shift Up</button>
+        <button id="shift-down">Shift Down</button>
+    </div>
+
+    <!-- Wrap the Export button in its own div with the same styling -->
+    <div class="export-container">
+        <button class="export-button" id="export-button" onclick="exportGrid()">Export</button>
+    </div>
+
+    <!-- Text box for export data -->
+    <textarea class="export-text-box" id="export-text-box"></textarea>
+
+        <!-- Include the external JavaScript file -->
+        <script src="script.js"></script>
+</body>
+</html>

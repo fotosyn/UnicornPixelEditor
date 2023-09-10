@@ -1,0 +1,25 @@
+.palette, .export-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.swatch {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.selected-swatch {
+    border: 2px solid #000;
+}
+
+/* Added CSS for grid lines */
+.grid-cell {
+    border: 1px solid #9a9a9a;
+}
+
+/* Added CSS for button placement */
+.export-container {
+    margin-top: 10px;
+}
