@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unicorn Pixel Art Editor</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <!-- Add Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
@@ -19,6 +23,12 @@
                 <option value="53">53x11 (Galactic Unicorn)</option>
                 <option value="32">32x32 (Cosmic Unicorn)</option>
             </select>
+        </div>
+        
+        <div class="mt-4" id="template-select-container">
+            <select id="template-select" class="form-control">
+                <!-- Options will be populated here -->
+            </select>            
         </div>
 
         <div class="palette mt-4" id="color-palette">
