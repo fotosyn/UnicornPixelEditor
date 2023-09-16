@@ -1,15 +1,25 @@
-// Initialize the grid and palette
-let gridSize = 16; // Default grid size
-let selectedColor = ''; // Default color
+/*
+ * Unicorn Pixel Art Editor
+ * Version 1.0 by Jim Moore - September 2023
+ *
+ * A simple tool to generate and export pixel maps and palettes for Pimoroni Unicorn LED panels.
+ * For more information, visit: https://shop.pimoroni.com/products/space-unicorns
+ * Read the documentation for guidance on using this code.
+ * You are free to repurpose this code as needed.
+ */
+
+// Initialization
+let gridSize = 16;
 let grid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill('#000000'));
 let paletteColors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'];
-let jsonData; // Define the variable to store template data
+let selectedColor = '';
+let jsonData;
 
-// Initialize color maps
+// Color Maps Setup
 const colorToIndexMap = {};
 const indexToGridPositionsMap = {};
 
-// Function to create and display color swatches
+// Palette Functions
 function createPalette() {
     const paletteContainer = document.getElementById('color-palette');
     paletteContainer.innerHTML = '';
@@ -24,37 +34,30 @@ function createPalette() {
         });
         paletteContainer.appendChild(swatch);
 
-        // Map color to its index
         colorToIndexMap[color] = index;
-
-        // Initialize the positions map
         indexToGridPositionsMap[index] = [];
     });
 
-    // Highlight the default selected color swatch (index 0)
     const defaultSelectedSwatch = document.querySelector('.swatch:first-child');
     highlightSelectedSwatch(defaultSelectedSwatch);
 }
 
-// Function to edit the palette
 function editPalette() {
     const newPaletteColors = prompt("Edit the palette (comma-separated hex values):", paletteColors.join(','));
     if (newPaletteColors !== null) {
         const colorsArray = newPaletteColors.split(',').map(color => color.trim());
 
         if (colorsArray.length > 0) {
-            const oldSelectedColor = selectedColor; // Store the currently selected color
-            const oldPaletteColors = paletteColors.slice(); // Create a copy of the old palette colors
+            const oldSelectedColor = selectedColor;
+            const oldPaletteColors = paletteColors.slice();
             paletteColors = colorsArray;
             createPalette();
 
-            // Create a mapping of old color to new color
             const colorMapping = {};
             oldPaletteColors.forEach((oldColor, index) => {
                 colorMapping[oldColor] = paletteColors[index];
             });
 
-            // Update grid elements to reflect the new palette colors
             for (let x = 0; x < gridSize; x++) {
                 for (let y = 0; y < gridSize; y++) {
                     const currentColor = grid[x][y];
@@ -64,7 +67,6 @@ function editPalette() {
                 }
             }
 
-            // Update the selected color if it has changed in the palette
             if (colorMapping.hasOwnProperty(oldSelectedColor)) {
                 selectedColor = colorMapping[oldSelectedColor];
             }
@@ -76,7 +78,6 @@ function editPalette() {
     }
 }
 
-// Function to highlight the selected swatch
 function highlightSelectedSwatch(swatch) {
     const swatches = document.querySelectorAll('.swatch');
     swatches.forEach((s) => {
@@ -85,7 +86,7 @@ function highlightSelectedSwatch(swatch) {
     swatch.classList.add('selected-swatch');
 }
 
-// Function to convert hex color to RGB
+// Utility Functions
 function hexToRgb(hex) {
     hex = hex.replace(/^#/, '');
     const bigint = parseInt(hex, 16);
@@ -95,17 +96,27 @@ function hexToRgb(hex) {
     return { r, g, b };
 }
 
-// Function to draw the grid
+function rgbToHex(r, g, b) {
+    return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+}
+
+function formatPythonCode(data) {
+    const indent = '    ';
+    const formattedGrid = data.grid.map(row => `[${row.join(', ')}],`).join(`\n${indent + indent}`);
+    const formattedPalette = data.palette.map(color => JSON.stringify(color) + ',').join(`\n${indent + indent}`);
+    const formattedCode = `data = {\n${indent}"grid": [\n${indent + indent}${formattedGrid}\n${indent}],\n${indent}"palette": [\n${indent + indent}${formattedPalette}\n${indent}]\n}`;
+    return formattedCode;
+}
+
+// Grid Functions
 function drawGrid() {
     const canvas = document.getElementById('pixel-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grid lines
-    ctx.strokeStyle = '#9a9a9a'; // Grid line color
-    ctx.lineWidth = 1; // Grid line width
+    ctx.strokeStyle = '#9a9a9a';
+    ctx.lineWidth = 1;
 
     const cellWidth = canvas.width / gridSize;
     const cellHeight = canvas.height / gridSize;
@@ -115,124 +126,62 @@ function drawGrid() {
             const xPos = x * cellWidth;
             const yPos = y * cellHeight;
 
-            // Draw a filled rectangle for each cell
             ctx.fillStyle = grid[x][y];
             ctx.fillRect(xPos, yPos, cellWidth, cellHeight);
 
-            // Draw grid cell border (grey line)
-            ctx.strokeStyle = '#9a9a9a'; // Grey line color
+            ctx.strokeStyle = '#9a9a9a';
             ctx.strokeRect(xPos, yPos, cellWidth, cellHeight);
         }
     }
 }
 
-// Adjust the size of the grid based on the selected device from the menu
 function changeGridSize(size) {
     gridSize = parseInt(size);
-
-    // Clear the grid and initialize it with the default color
     grid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill('#000000'));
 
-    // Update the canvas size
     const canvas = document.getElementById('pixel-canvas');
-    if (gridSize === 53) {
-        canvas.width = gridSize * 16;
-        canvas.height = 11 * 16; // Set the height to 11 as an exception
-    } else {
-        canvas.width = gridSize * 16;
-        canvas.height = gridSize * 16;
-    }
+    const cellWidth = canvas.width / gridSize;
+    const cellHeight = canvas.height / gridSize;
 
-    // Redraw the grid
+    canvas.width = gridSize * cellWidth;
+    canvas.height = gridSize * cellHeight;
+
     drawGrid();
 }
 
-// Event listener for mouse click to change pixel color
-const canvas = document.getElementById('pixel-canvas');
-canvas.addEventListener('mousedown', function (e) {
-    const x = Math.floor((e.offsetX / (canvas.width / gridSize)));
-    const y = Math.floor((e.offsetY / (canvas.height / gridSize)));
+// Pixel Manipulation Functions
+function shiftPixels(dx, dy) {
+    const newGrid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(0));
 
-    grid[x][y] = selectedColor;
+    for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+            const newX = (x + dx + gridSize) % gridSize;
+            const newY = (y + dy + gridSize) % gridSize;
+            newGrid[newX][newY] = grid[x][y];
+        }
+    }
+
+    grid = newGrid;
     drawGrid();
-});
+}
 
-// Event listeners for shift buttons
-document.getElementById('shift-left').addEventListener('click', shiftLeft);
-document.getElementById('shift-right').addEventListener('click', shiftRight);
-document.getElementById('shift-up').addEventListener('click', shiftUp);
-document.getElementById('shift-down').addEventListener('click', shiftDown);
-
-
-/// Function to shift pixels to the left (along the X-axis)
 function shiftLeft() {
-    const newGrid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(0));
-
-    for (let x = 0; x < gridSize; x++) {
-        for (let y = 0; y < gridSize; y++) {
-            const newX = (x - 1 + gridSize) % gridSize; // Move left in X
-            const newY = y; // No change in Y
-
-            newGrid[newX][newY] = grid[x][y];
-        }
-    }
-
-    grid = newGrid;
-    drawGrid();
+    shiftPixels(-1, 0);
 }
 
-// Function to shift pixels to the right (along the X-axis)
 function shiftRight() {
-    const newGrid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(0));
-
-    for (let x = 0; x < gridSize; x++) {
-        for (let y = 0; y < gridSize; y++) {
-            const newX = (x + 1) % gridSize; // Move right in X
-            const newY = y; // No change in Y
-
-            newGrid[newX][newY] = grid[x][y];
-        }
-    }
-
-    grid = newGrid;
-    drawGrid();
+    shiftPixels(1, 0);
 }
 
-// Function to shift pixels up (along the Y-axis)
 function shiftUp() {
-    const newGrid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(0));
-
-    for (let x = 0; x < gridSize; x++) {
-        for (let y = 0; y < gridSize; y++) {
-            const newX = x; // No change in X
-            const newY = (y - 1 + gridSize) % gridSize; // Move up in Y
-
-            newGrid[newX][newY] = grid[x][y];
-        }
-    }
-
-    grid = newGrid;
-    drawGrid();
+    shiftPixels(0, -1);
 }
 
-// Function to shift pixels down (along the Y-axis)
 function shiftDown() {
-    const newGrid = new Array(gridSize).fill(null).map(() => new Array(gridSize).fill(0));
-
-    for (let x = 0; x < gridSize; x++) {
-        for (let y = 0; y < gridSize; y++) {
-            const newX = x; // No change in X
-            const newY = (y + 1) % gridSize; // Move down in Y
-
-            newGrid[newX][newY] = grid[x][y];
-        }
-    }
-
-    grid = newGrid;
-    drawGrid();
+    shiftPixels(0, 1);
 }
 
-// Function to export the grid data
+// Data Export & Import Functions
 function exportGrid() {
     const exportData = {
         grid: [],
@@ -242,58 +191,28 @@ function exportGrid() {
         })
     };
 
-    for (let y = 0; y < gridSize; y++) { // Loop through rows
+    for (let y = 0; y < gridSize; y++) {
         const row = [];
-        for (let x = 0; x < gridSize; x++) { // Loop through columns
-            const color = grid[x][y]; // Retrieve color from the original grid
+        for (let x = 0; x < gridSize; x++) {
+            const color = grid[x][y];
             const index = colorToIndexMap[color];
             row.push(index === undefined ? 0 : index);
         }
         exportData.grid.push(row);
     }
 
-    // Format the exportData object as a Python dictionary with indentation and line breaks
     const formattedPythonCode = formatPythonCode(exportData);
-
-    // Set the export data in the textarea element
-    var exportTextBox = document.getElementById("export-text-box");
+    const exportTextBox = document.getElementById("export-text-box");
     exportTextBox.value = formattedPythonCode;
     exportTextBox.style.display = 'block';
 }
 
-
-// Create a custom formatting function for Python code
-function formatPythonCode(data) {
-    const indent = '    '; // Define the indentation (4 spaces)
-
-    const formattedGrid = data.grid.map(row => {
-        return `[${row.join(', ')}],`;
-    }).join('\n' + indent + indent);
-
-    const formattedPalette = data.palette.map(color => {
-        return JSON.stringify(color) + ',';
-    }).join('\n' + indent + indent);
-
-    const formattedCode = `data = {
-${indent}"grid": [
-${indent + indent}${formattedGrid}
-${indent}],
-${indent}"palette": [
-${indent + indent}${formattedPalette}
-${indent}]
-}`;
-
-    return formattedCode;
-}
-
-// Function to selet all text in the export text box
 function selectAllText() {
     const exportTextBox = document.getElementById("export-text-box");
     exportTextBox.select();
     document.execCommand("copy");
 }
 
-// Function to copy the export data to the clipboard
 function copyToClipboard() {
     const exportTextBox = document.getElementById("export-text-box");
     const copyAlert = document.getElementById("copy-alert");
@@ -310,58 +229,39 @@ function copyToClipboard() {
     }
 }
 
-// Function to load the selected template
 function loadTemplate() {
     const templateSelect = document.getElementById('template-select');
     const selectedTemplateIndex = templateSelect.selectedIndex;
-    
-    // Make sure the selectedTemplateIndex is valid
-    if (selectedTemplateIndex >= 0) {
-      // Load the template data from the loaded JSON data
-      const selectedTemplateData = jsonData[selectedTemplateIndex];
-      
-      // Use the selectedTemplateData to update the grid and palette
-      // (You can reuse your existing code for this)
-      loadGridAndPalette(selectedTemplateData);
-    }
-  }
-  
 
-// Function to convert RGB components to hex
-function rgbToHex(r, g, b) {
-    return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+    if (selectedTemplateIndex >= 0) {
+        const selectedTemplateData = jsonData[selectedTemplateIndex];
+        loadGridAndPalette(selectedTemplateData);
+    }
 }
 
-// Function to load the grid and palette from template data
 function loadGridAndPalette(templateData) {
-    // Load palette data from the template and convert RGB to hex
     paletteColors = templateData.palette.map((rgbColor) => {
         return rgbToHex(rgbColor.r, rgbColor.g, rgbColor.b);
     });
 
-    // Reinitialize the palette
     createPalette();
 
-    // Load and transpose grid data from the template and draw it
     grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
-    
+
     for (let x = 0; x < gridSize; x++) {
         for (let y = 0; y < gridSize; y++) {
-            const colorIndex = templateData.grid[y][x]; // Transpose rows and columns
+            const colorIndex = templateData.grid[y][x];
             grid[x][y] = paletteColors[colorIndex];
         }
     }
 
-    // Calculate the canvas size based on the grid size
     const canvas = document.getElementById('pixel-canvas');
     const cellWidth = canvas.width / gridSize;
     const cellHeight = canvas.height / gridSize;
 
-    // Clear the canvas
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grid elements in the correct orientation
     for (let x = 0; x < gridSize; x++) {
         for (let y = 0; y < gridSize; y++) {
             const xPos = x * cellWidth;
@@ -370,29 +270,20 @@ function loadGridAndPalette(templateData) {
             ctx.fillStyle = grid[x][y];
             ctx.fillRect(xPos, yPos, cellWidth, cellHeight);
 
-            // Draw grid cell border (grey line)
-            ctx.strokeStyle = '#9a9a9a'; // Grey line color
+            ctx.strokeStyle = '#9a9a9a';
             ctx.strokeRect(xPos, yPos, cellWidth, cellHeight);
         }
     }
 }
 
-// Function to populate the Template dropdown
 function populateTemplateDropdown() {
-    // Get a reference to the select container div
     const templateSelectContainer = document.getElementById("template-select-container");
-
-    // Create the select element
     const templateSelect = document.getElementById("template-select");
 
-    // Fetch the JSON data from images.json
     fetch('images.json')
         .then(response => response.json())
         .then(data => {
-            // Assign the loaded data to the jsonData variable
             jsonData = data;
-
-            // Populate the template select element with the loaded data
             data.forEach((template, index) => {
                 const option = document.createElement('option');
                 option.value = `template${index + 1}`;
@@ -400,29 +291,38 @@ function populateTemplateDropdown() {
                 templateSelect.appendChild(option);
             });
 
-            // Call the loadTemplate function initially to load the default template
             loadTemplate();
         })
         .catch(error => {
             console.error('Error loading templates:', error);
         });
 
-    // Append the dynamically created select element to the container
     templateSelectContainer.appendChild(templateSelect);
 }
 
-// Call the populateTemplateDropdown function to populate the dropdown when the page loads
+// Event Listeners
+const canvas = document.getElementById('pixel-canvas');
+canvas.addEventListener('mousedown', function (e) {
+    const x = Math.floor((e.offsetX / (canvas.width / gridSize)));
+    const y = Math.floor((e.offsetY / (canvas.height / gridSize)));
+
+    grid[x][y] = selectedColor;
+    drawGrid();
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     populateTemplateDropdown();
 });
 
+document.getElementById('shift-left').addEventListener('click', shiftLeft);
+document.getElementById('shift-right').addEventListener('click', shiftRight);
+document.getElementById('shift-up').addEventListener('click', shiftUp);
+document.getElementById('shift-down').addEventListener('click', shiftDown);
 
-// Attach the loadTemplate function to the template select element
 const templateSelect = document.getElementById('template-select');
 templateSelect.addEventListener('change', function () {
-    loadTemplate(); // Call the function when the selection changes
+    loadTemplate();
 });
 
-// Initialize palette and grid
 createPalette();
 drawGrid();

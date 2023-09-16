@@ -18,7 +18,7 @@
 
         <div class="controls mt-4">
             <label for="grid-size">Grid Size:</label>
-            <select id="grid-size" class="form-control" onchange="changeGridSize(this.value)">
+            <select id="grid-size-select" class="form-control" onchange="changeGridSize(this.value)">
                 <option value="16" selected>16x16 (Stellar Unicorn)</option>
                 <option value="53">53x11 (Galactic Unicorn)</option>
                 <option value="32">32x32 (Cosmic Unicorn)</option>
@@ -36,7 +36,7 @@
         </div>
         
         <div class="edit-palette">
-            <button id="edit-palette-button" class="btn btn-primary mt-2" onclick="editPalette()">Edit Palette</button>
+            <button id="edit-palette-btn" class="btn btn-primary mt-2" onclick="editPalette()">Edit Palette</button>
         </div>
 
         <canvas id="pixel-canvas" class="mt-4" width="256" height="256"></canvas>
