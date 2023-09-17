@@ -16,16 +16,14 @@
     <div class="container">
         <h1 class="mt-4">Unicorn Pixel Art Editor</h1>
 
-        <div class="controls mt-4">
-            <label for="grid-size">Grid Size:</label>
-            <select id="grid-size-select" class="form-control" onchange="changeGridSize(this.value)">
-                <option value="16" selected>16x16 (Stellar Unicorn)</option>
-                <option value="53">53x11 (Galactic Unicorn)</option>
-                <option value="32">32x32 (Cosmic Unicorn)</option>
-            </select>
+        <div class="controls mt-4" id="grid-size-select-container">
+            <label for="grid-size-select">Grid Size:</label>
+            <select id="grid-size-select" class="form-control">
+            </select>            
         </div>
         
         <div class="mt-4" id="template-select-container">
+            <label for="template-select">Template:</label>
             <select id="template-select" class="form-control">
                 <!-- Options will be populated here -->
             </select>            
@@ -39,7 +37,7 @@
             <button id="edit-palette-btn" class="btn btn-primary mt-2" onclick="editPalette()">Edit Palette</button>
         </div>
 
-        <canvas id="pixel-canvas" class="mt-4" width="256" height="256"></canvas>
+        <canvas class="mt-4" id="pixel-canvas" width="256" height="256"></canvas>
 
         <div class="mt-2">
             <button id="shift-left" class="btn btn-primary">Shift Left</button>
