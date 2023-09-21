@@ -278,8 +278,15 @@ function loadTemplate() {
     const templateSelect = document.getElementById('template-select');
     const selectedTemplateIndex = templateSelect.selectedIndex;
 
-    if (selectedTemplateIndex >= 0) {
-        const selectedTemplateData = jsonData[selectedTemplateIndex];
+    // Get the selected grid size
+    const gridSizeSelect = document.getElementById('grid-size-select');
+    const selectedGridSize = gridSizeSelect.value;
+
+    // Use the template data based on the selected grid size
+    const templates = gridTemplates[selectedGridSize];
+
+    if (templates && selectedTemplateIndex >= 0) {
+        const selectedTemplateData = templates[selectedTemplateIndex];
         loadGridAndPalette(selectedTemplateData);
     }
 }
@@ -287,7 +294,7 @@ function loadTemplate() {
 function selectAllText() {
     const textarea = document.getElementById('export-text-box');
     textarea.select();
-    textarea.setSelectionRange(0, 99999); 
+    textarea.setSelectionRange(0, 99999);
     document.execCommand('copy');
 }
 
@@ -339,24 +346,30 @@ function populateTemplateDropdown() {
     const templateSelectContainer = document.getElementById("template-select-container");
     const templateSelect = document.getElementById("template-select");
 
-    fetch('images.json')
-        .then(response => response.json())
-        .then(data => {
-            jsonData = data;
-            data.forEach((template, index) => {
-                const option = document.createElement('option');
-                option.value = `template${index + 1}`;
-                option.textContent = `${template.label}`;
-                templateSelect.appendChild(option);
-            });
+    templateSelect.innerHTML = ''; // Clear existing options
 
-            loadTemplate();
-        })
-        .catch(error => {
-            console.error('Error loading templates:', error);
+    // Get the selected grid size
+    const gridSizeSelect = document.getElementById('grid-size-select');
+    const selectedGridSize = gridSizeSelect.value;
+
+    // Use the template data based on the selected grid size
+    const templates = gridTemplates[selectedGridSize];
+
+    if (templates) {
+        templates.forEach((template, index) => {
+            const option = document.createElement('option');
+            option.value = `template${index + 1}`;
+            option.textContent = `${template.label}`;
+            templateSelect.appendChild(option);
         });
+    } else {
+        // Handle the case when templates are not available for the selected grid size
+        const option = document.createElement('option');
+        option.textContent = 'No templates available';
+        templateSelect.appendChild(option);
+    }
 
-    templateSelectContainer.appendChild(templateSelect);
+    loadTemplate(); // Load the default template
 }
 
 // Event Listeners
@@ -395,24 +408,58 @@ function populateGridSizeDropdown() {
 
 function initializeGrid() {
     const gridSizeSelect = document.getElementById('grid-size-select');
-
-    gridSizeSelect.value = defaultUnicornGrid;
-    populateGridSizeDropdown();
+    
+    // Set the default selected grid size from the config
+    gridSizeSelect.value = config.defaultUnicornGrid;
 
     gridSizeSelect.addEventListener('change', function () {
         const selectedGridSize = gridSizeSelect.value;
         changeGridSize(selectedGridSize);
+        populateTemplateDropdown(); // Populate the template dropdown based on the new grid size
     });
 
     // Initialize the grid size based on the default selection
-    changeGridSize(config.unicornGridSizes[defaultUnicornGrid]);
-    parseGridSize(config.unicornGridSizes[defaultUnicornGrid]);
+    changeGridSize(config.unicornGridSizes[config.defaultUnicornGrid]);
+    parseGridSize(config.unicornGridSizes[config.defaultUnicornGrid]);
+}
+
+// Load templates from an external JSON file
+function loadTemplatesFromJSON() {
+    const xhr = new XMLHttpRequest();
+    xhr.overrideMimeType("application/json");
+    xhr.open("GET", "images.json", true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const jsonContent = JSON.parse(xhr.responseText);
+            handleTemplates(jsonContent);
+        }
+    };
+    xhr.send(null);
+}
+
+// Handle the loaded templates
+function handleTemplates(templates) {
+    gridTemplates = templates; // Assuming gridTemplates is a global variable used to store template data
+    populateTemplateDropdown();
+    loadTemplate(); // Load the default template
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    populateTemplateDropdown();
+    loadTemplatesFromJSON(); // Load templates when the DOM is ready
     populateGridSizeDropdown();
     createPalette();
     initializeGrid();
     drawGrid();
+
+    // Apply the default grid size to the select menu on initial load
+    const gridSizeSelect = document.getElementById('grid-size-select');
+    const defaultGridSize = config.defaultUnicornGrid;
+    if (gridSizeSelect) {
+        gridSizeSelect.value = config.unicornGridSizes[defaultGridSize];
+        changeGridSize(config.unicornGridSizes[defaultGridSize]);
+        populateTemplateDropdown(); // Populate the template dropdown based on the new grid size
+    }
 });
+
+
+
