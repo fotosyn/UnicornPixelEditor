@@ -262,7 +262,7 @@ function exportGrid() {
 
     const formattedPythonCode = formatPythonCode(exportData);
     const exportTextBox = document.getElementById("export-text-box");
-    exportTextBox.value = formattedPythonCode;
+    exportTextBox.textContent = formattedPythonCode;
     exportTextBox.style.display = 'block';
 }
 
@@ -291,17 +291,30 @@ function loadTemplate() {
     }
 }
 
+const selectButton = document.getElementById('select-all-button');
+selectButton.addEventListener('click', selectAllText);
+
 function selectAllText() {
-    const textarea = document.getElementById('export-text-box');
-    textarea.select();
-    textarea.setSelectionRange(0, 99999);
-    document.execCommand('copy');
+    const preElement = document.getElementById('export-text-box');
+    const selection = window.getSelection();
+    const range = document.createRange();
+
+    range.selectNodeContents(preElement);
+    selection.removeAllRanges();
+    selection.addRange(range);
 }
 
+// Add an event listener to the "Copy to Clipboard" button
+const copyButton = document.getElementById('copy-clipboard-button');
+copyButton.addEventListener('click', copyToClipboard);
+
+// Function to copy text to the clipboard
 function copyToClipboard() {
-    const textarea = document.getElementById('export-text-box');
-    textarea.select();
-    document.execCommand('copy');
+    const preElement = document.getElementById('export-text-box');
+    const textToCopy = preElement.textContent;
+
+    navigator.clipboard.writeText(textToCopy)
+
 }
 
 function loadGridAndPalette(templateData) {

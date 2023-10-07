@@ -19,3 +19,18 @@
 .grid-cell {
     border: 1px solid #9a9a9a;
 }
+
+/* CSS styles for the code container */
+.code-container {
+    max-width: 100%;
+    overflow: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.export-text-box {
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: monospace;
+    min-height: 100px; /* Set an appropriate minimum height */
+}
