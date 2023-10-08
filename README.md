@@ -1,6 +1,6 @@
-# Getting started with the Unicorn Pixel Art Editor <a name="top"></a>
+# Getting started with the Unicorn Pixel Art Editor
 
-## Introduction <a name="introduction"></a>
+### Introduction <a name="introduction"></a>
 
 Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for Pimoroni Unicorn LED panels. 
 
@@ -29,7 +29,7 @@ Use our online version: You can begin creating pixel art immediately by selectin
 
 Now you're ready to start creating pixel art using the Unicorn Pixel Art Editor. Whether you choose to run it locally or use the [online version](https://github_username.github.io/unicorn-pixel-art-editor), have fun, get creative, and enjoy your pixel artwork in their LED-tastic glory!
 
-[Back to the top of this page](#top)
+[Back to top](#top)
 
 ---
 
@@ -62,7 +62,7 @@ Follow these steps to run the Unicorn Pixel Art Editor on your local machine:
 
    - After creating your pixel art, you can export it in Python code format or copy it to the clipboard for use in your projects.
 
-[Back to the top of this page](#top)
+[Back to top](#top)
 
 ---
 
@@ -94,7 +94,7 @@ To see your pixel art creations come to life on the Pimoroni Unicorn LED panels 
 
    - Run the script on the Raspberry Pi Pico, and watch your pixel art light up on the Unicorn LED panels.
 
-[Back to the top of this page](#top)
+[Back to top](#top)
 
 ---
 
@@ -110,4 +110,4 @@ Here are some additional resources to help you get started with pixel art creati
 
 These resources provide valuable information and tutorials on pixel art, Python programming, and using hardware like the Raspberry Pi Pico. They will enhance your experience with the Unicorn Pixel Art Editor.
 
-[Back to the top of this page](#top)
+[Back to top](#top)
