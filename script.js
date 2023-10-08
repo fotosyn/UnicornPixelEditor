@@ -264,6 +264,7 @@ function exportGrid() {
     const exportTextBox = document.getElementById("export-text-box");
     exportTextBox.textContent = formattedPythonCode;
     exportTextBox.style.display = 'block';
+    toggleExportButtons(true); // Call the function to show the buttons
 }
 
 function createColorMapping(oldColors, newColors) {
@@ -436,6 +437,20 @@ function initializeGrid() {
     parseGridSize(config.unicornGridSizes[config.defaultUnicornGrid]);
 }
 
+// Function to show/hide the "Select All" and "Copy to Clipboard" buttons
+function toggleExportButtons(display) {
+    const selectButton = document.getElementById('select-all-button');
+    const copyButton = document.getElementById('copy-clipboard-button');
+    
+    if (display) {
+        selectButton.style.display = 'inline-block';
+        copyButton.style.display = 'inline-block';
+    } else {
+        selectButton.style.display = 'none';
+        copyButton.style.display = 'none';
+    }
+}
+
 // Load templates from an external JSON file
 function loadTemplatesFromJSON() {
     const xmlRequest = new XMLHttpRequest();
@@ -463,6 +478,7 @@ document.addEventListener("DOMContentLoaded", function () {
     createPalette();
     initializeGrid();
     drawGrid();
+    toggleExportButtons(false);
 
     // Apply the default grid size to the select menu on initial load
     const gridSizeSelect = document.getElementById('grid-size-select');
@@ -473,6 +489,3 @@ document.addEventListener("DOMContentLoaded", function () {
         populateTemplateDropdown(); // Populate the template dropdown based on the new grid size
     }
 });
-
-
-
