@@ -11,17 +11,17 @@ There is also some guidance on running the required Python scripts on the Pimoro
 Use our online version: You can begin creating pixel art immediately by selecting colors from the palette and interacting with the canvas.
 
 ####  Getting started:
-[How to use the editor](#using-the-editor) / [Use the online version on GitHub Pages](https://github_username.github.io/unicorn-pixel-art-editor)
+[How to use the editor](#how-to-use-the-editor) / [Use the online version on GitHub Pages](https://github_username.github.io/unicorn-pixel-art-editor)
 
 #### Installing the app:
-[Self-hosted installation steps](#self-host-locally) / [Using Thonny and Raspberry Pi Pico](#using-thonny-and-raspberry-pi-pico)
+[Self-hosted installation steps](#self-host-or-run-locally) / [Using Thonny and Raspberry Pi Pico](#using-thonny-and-raspberry-pi-pico)
 
 #### Support:
 [Useful Resources](#useful-resources) <!-- Added section -->
 
 ---
 
-## How to use the editor <a name="using-the-editor"></a>
+## How to use the editor
 
 - **Grid Size:** You can change the grid size and load templates to get started quickly.
 - **Palette:** Customize the color palette by editing the list of hex color codes.
@@ -33,7 +33,7 @@ Now you're ready to start creating pixel art using the Unicorn Pixel Art Editor.
 
 ---
 
-## Self-host or run locally <a name="self-host-locally"></a>
+## Self-host or run locally
 
 Follow these steps to run the Unicorn Pixel Art Editor on your local machine:
 
