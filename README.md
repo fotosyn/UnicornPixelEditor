@@ -1,4 +1,4 @@
-# Unicorn Pixel Art Editor Guide <a name="top"></a>
+# Getting started with the Unicorn Pixel Art Editor <a name="top"></a>
 
 ## Introduction <a name="introduction"></a>
 
