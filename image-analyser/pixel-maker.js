@@ -1,3 +1,10 @@
+// Unicorn Pixel Art Image Analyser
+// Version 1.0 by Jim Moore - September 2023
+// A simple tool to convert pixel images into pixel maps and palettes for Pimoroni Unicorn LED panels.
+// For more information, visit: https://shop.pimoroni.com/products/space-unicorns
+// Read the documentation for guidance on using this code.
+// Repurpose this code as needed
+
 // Get references to DOM elements
 const fileInput = document.getElementById('file-input');
 const imagePreview = document.getElementById('image-preview');

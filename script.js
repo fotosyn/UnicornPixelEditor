@@ -3,7 +3,7 @@
 // A simple tool to generate and export pixel maps and palettes for Pimoroni Unicorn LED panels.
 // For more information, visit: https://shop.pimoroni.com/products/space-unicorns
 // Read the documentation for guidance on using this code.
-// You are free to repurpose this code as needed.
+// Repurpose this code as needed
 
 // Configuration Object
 const config = {
@@ -438,16 +438,16 @@ function initializeGrid() {
 
 // Load templates from an external JSON file
 function loadTemplatesFromJSON() {
-    const xhr = new XMLHttpRequest();
-    xhr.overrideMimeType("application/json");
-    xhr.open("GET", "images.json", true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const jsonContent = JSON.parse(xhr.responseText);
+    const xmlRequest = new XMLHttpRequest();
+    xmlRequest.overrideMimeType("application/json");
+    xmlRequest.open("GET", "images.json", true);
+    xmlRequest.onreadystatechange = function () {
+        if (xmlRequest.readyState === 4 && xmlRequest.status === 200) {
+            const jsonContent = JSON.parse(xmlRequest.responseText);
             handleTemplates(jsonContent);
         }
     };
-    xhr.send(null);
+    xmlRequest.send(null);
 }
 
 // Handle the loaded templates
