@@ -16,7 +16,7 @@ To get started with the Unicorn Image Analyser, follow these steps:
 
 For best results, it is recommended to use images with the following characteristics:
 
-- **Indexed Palette**: Images with an indexed palette of around 16 to 32 colors are recommended. This helps in generating a more accurate color palette.
+- **Indexed Palette**: Images with an indexed palette of around 16 to 32 colors are recommended. This helps in generating an easier to manage color palette.
 
 ## Supported Unicorn Types and Pixel Sizes
 
