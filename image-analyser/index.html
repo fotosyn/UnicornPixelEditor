@@ -11,7 +11,8 @@
         <h1 id="app-header" class="mt-4">Unicorn Image Analyser</h1>
 
         <div id="image-import-container" class="controls mt-4">
-            <p class="mt-2">Load an image in to generate a pixel map and palette for use with the Unicorn pixel-art python files.</p>
+            <p class="mt-2">Load an image in to generate a pixel map and palette for use with the Unicorn pixel-art python files.<br />Refer to the sizes below to use with the Unicorn LED matrix you are using.</p>
+            <p class="mt-2">Images with an indexed palette of around 16 to 32 colours are recommended.</p>
             <input type="file" id="file-input" class="form-control">
         </div>
 
@@ -29,6 +30,32 @@
             <button id="select-all-button" class="btn btn-secondary">Select All</button>
             <button id="copy-clipboard-button" class="btn btn-secondary">Copy to clipboard</button>
             <pre id="export-text-box" class="border p-3 mt-2"></pre>
+        </div>
+
+        <div class="mt-4">
+            <h4>Pixel Sizes</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Unicorn Type</th>
+                        <th>Pixel Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Stellar Unicorn</td>
+                        <td>16x16</td>
+                    </tr>
+                    <tr>
+                        <td>Galactic Unicorn</td>
+                        <td>53x11</td>
+                    </tr>
+                    <tr>
+                        <td>Cosmic Unicorn</td>
+                        <td>32x32</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
