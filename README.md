@@ -4,20 +4,22 @@
 
 Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). 
 
-You have two options for using the editor: [self-hosting / running locally](#self-host-locally) or using the [online version](https://github_username.github.io/unicorn-pixel-art-editor){:target=”_blank”} hosted on GitHub Pages.
+You have two options for using the editor: [self-hosting / running locally](#self-host-locally) or using the [online version](https://github_username.github.io/unicorn-pixel-art-editor) hosted on GitHub Pages.
 
 There is also some guidance on running the required Python scripts on the Pimoroni Unicorn LED panels so you can see your artwork in all their LED lit-up glory!
 
 Use our online version: You can begin creating pixel art immediately by selecting colors from the palette and interacting with the canvas.
 
+<a href="https://github_username.github.io/unicorn-pixel-art-editor" target="_blank">online version</a>
+
 ####  Getting started:
-[How to use the editor](#using-the-editor) / [Use the online version on GitHub Pages](https://github_username.github.io/unicorn-pixel-art-editor){:target=”_blank”}
+[How to use the editor](#using-the-editor) / [Use the online version on GitHub Pages](https://github_username.github.io/unicorn-pixel-art-editor)
 
 #### Installing the app:
 [Self-hosted installation steps](#self-host-locally) / [Using Thonny and Raspberry Pi Pico](#using-thonny-and-raspberry-pi-pico)
 
 #### Support:
-[Useful Resources](#useful-resources) <!-- Added section -->
+[Useful Resources](#useful-resources)
 
 ---
 
