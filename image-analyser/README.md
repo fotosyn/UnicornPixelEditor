@@ -22,9 +22,9 @@ For best results, it is recommended to use images with the following characteris
 
 The Unicorn Image Analyser provides pixel sizes for different Unicorn LED matrix types. Here are the supported Unicorn types and their corresponding pixel sizes:
 
-- **Stellar Unicorn**: [16x16 pixels](#)
-- **Galactic Unicorn**: [53x11 pixels](#)
-- **Cosmic Unicorn**: [32x32 pixels](#)
+- **Stellar Unicorn**: 16x16 pixels
+- **Galactic Unicorn**: 53x11 pixels
+- **Cosmic Unicorn**: 32x32 pixels
 
 Refer to the appropriate pixel size when working with your Unicorn LED matrix to ensure the correct rendering of images.
 
