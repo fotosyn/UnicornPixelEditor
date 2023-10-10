@@ -1,0 +1,9 @@
+name: Create Awesome Badge
+uses: schneegans/dynamic-badges-action@v1.6.0
+with:
+  auth: ${{ secrets.GIST_SECRET }}
+  gistID: <gist-ID>
+  filename: test.svg # Use test.svg if you want to use the SVG mode.
+  label: UnicornPixelEditor
+  message: v1.0
+  color: orange
