@@ -4,14 +4,14 @@
 
 Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). 
 
-You have two options for using the editor: [self-hosting / running locally](#self-host-locally) or using the [online version](https://github_username.github.io/unicorn-pixel-art-editor) hosted on GitHub Pages.
+You have two options for using the editor: [self-hosting / running locally](#self-host-locally) or using the [online version](https://fotosyn.github.io/UnicornPixelEditor/) hosted on GitHub Pages.
 
 There is also some guidance on running the required Python scripts on the Pimoroni Unicorn LED panels so you can see your artwork in all their LED lit-up glory!
 
 Use our online version: You can begin creating pixel art immediately by selecting colors from the palette and interacting with the canvas.
 
 ####  Getting started:
-[How to use the editor](#using-the-editor) / [Use the online version on GitHub Pages](https://github_username.github.io/unicorn-pixel-art-editor)
+[How to use the editor](#using-the-editor) / [Use the online version on GitHub Pages](https://fotosyn.github.io/UnicornPixelEditor/)
 
 #### Installing the app:
 [Self-hosted installation steps](#self-host-locally) / [Using Thonny and Raspberry Pi Pico](#using-thonny-and-raspberry-pi-pico)
@@ -27,7 +27,7 @@ Use our online version: You can begin creating pixel art immediately by selectin
 - **Palette:** Customize the color palette by editing the list of hex color codes.
 - **Tools:** Use the provided tools to draw, shift pixels, and create pixel art on the canvas.
 
-Now you're ready to start creating pixel art using the Unicorn Pixel Art Editor. Whether you choose to run it locally or use the [online version](https://github_username.github.io/unicorn-pixel-art-editor), have fun, get creative, and enjoy your pixel artwork in their LED-tastic glory!
+Now you're ready to start creating pixel art using the Unicorn Pixel Art Editor. Whether you choose to run it locally or use the [online version](https://fotosyn.github.io/UnicornPixelEditor/), have fun, get creative, and enjoy your pixel artwork in their LED-tastic glory!
 
 [Back to top](#top)
 
@@ -100,13 +100,12 @@ To see your pixel art creations come to life on the Pimoroni Unicorn LED panels 
 
 ## Useful Resources <a name="useful-resources"></a> <!-- Added section -->
 
-Here are some additional resources to help you get started with pixel art creation and using Thonny with the Raspberry Pi Pico:
+Here are some additional resources to help you get started with pixel art creation and using Thonny with the onboard Raspberry Pi Pico:
 
-- [Pimoroni Unicorn HAT Mini Guide](https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-unicorn-hat-mini)
-- [Pimoroni Unicorn HAT Mini Python Library](https://github.com/pimoroni/unicorn-hat-mini-python)
+- [Pimoroni Unicorn LED Matrix Guides](https://shop.pimoroni.com/products/space-unicorns?variant=40842632953939)
+- [Pimoroni MicroPython Libraries](https://github.com/pimoroni/pimoroni-pico/releases)
 - [Thonny IDE Documentation](https://docs.thonny.org/en/latest/index.html)
-- [Raspberry Pi Pico Getting Started](https://www.raspberrypi.org/documentation/pico/getting-started/)
-- [Getting Started with MicroPython on Raspberry Pi Pico](https://learn.adafruit.com/getting-started-with-raspberry-pi-pico-circuitpython)
+- [Getting started with Raspberry Pi Pico](https://projects.raspberrypi.org/en/projects/getting-started-with-the-pico)
 
 These resources provide valuable information and tutorials on pixel art, Python programming, and using hardware like the Raspberry Pi Pico. They will enhance your experience with the Unicorn Pixel Art Editor.
 

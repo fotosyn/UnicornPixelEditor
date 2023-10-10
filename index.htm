@@ -11,6 +11,11 @@
     <div class="container">
         <h1 id="app-header" class="mt-4">Unicorn Pixel Art Editor</h1>
 
+        <div class="mt-4">
+            <p>Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for <a href="https://shop.pimoroni.com/products/space-unicorns">Pimoroni Unicorn LED panels</a>.</p>
+            <p>Visit the <a href="https://github.com/fotosyn/UnicornPixelEditor">Github pages</a> to get started / Convert existing images using the <a href="https://fotosyn.github.io/UnicornPixelEditor/image-analyser">image analyser</a>.</p>
+        </div>
+
         <div id="grid-size-select-container" class="controls mt-4">
             <label for="grid-size-select">Grid Size:</label>
             <select id="grid-size-select" class="form-control"></select>
@@ -40,7 +45,7 @@
 
         <div id="export-functions-container" class="mt-5">
             <button id="export-button" class="export-button btn btn-success" onclick="exportGrid()">Generate code</button>
-            <button id="select-all-button" class="btn btn-secondary hidden" onclick="selectAllText()">Select All</button>
+            <button id="select-all-button" class="btn btn-secondary" onclick="selectAllText()">Select All</button>
             <button id="copy-clipboard-button" class="btn btn-secondary" onclick="copyToClipboard()">Copy to Clipboard</button>
         </div>
 
@@ -51,6 +56,8 @@
         <div id="export-output-container" class="code-container mt-4">
             <pre id="export-text-box" class="export-text-box"></pre>
         </div>
+
+        <p class="mt-4">Version 1.0</p>
     </div>
 
     <!-- Additional imports -->
