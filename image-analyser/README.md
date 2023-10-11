@@ -1,6 +1,6 @@
 # Unicorn Image Analyser
 
-![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fversion.json)
+![Publisher](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fpublisher.json) ![Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fversion.json)
 
 The Unicorn Image Analyser is a web-based tool that allows you to load an image to generate a pixel map and palette for use with Unicorn pixel-art Python files. This documentation provides an overview of how to use the app and its features.
 
