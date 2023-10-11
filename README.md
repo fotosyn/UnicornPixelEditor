@@ -2,6 +2,8 @@
 
 ### Introduction <a name="introduction"></a>
 
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fversion.json)
+
 Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). 
 
 You have two options for using the editor: [self-hosting / running locally](#self-host-locally) or using the [online version](https://fotosyn.github.io/UnicornPixelEditor/) hosted on GitHub Pages.
