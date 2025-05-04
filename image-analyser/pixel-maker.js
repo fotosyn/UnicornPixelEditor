@@ -132,7 +132,7 @@ function analyzeImage() {
         const formattedGrid = grid.map(row => `[${row.join(", ")}]`).join(`,\n${indent + indent}`);
         const formattedPalette = palette.map(color => `{"r": ${color.r}, "g": ${color.g}, "b": ${color.b}}`).join(`,\n${indent + indent}`);
 
-        const formattedCode = `data = {
+        const formattedCode = `image = {
 ${indent}"value": "${fileName}",
 ${indent}"label": "${labelVersion}",
 ${indent}"grid": [

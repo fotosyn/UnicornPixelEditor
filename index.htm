@@ -26,6 +26,13 @@
             <select id="template-select" class="form-control"></select>
         </div>
 
+        <div id="load-data-container" class="mt-4">
+            <label for="json-file-input">Load data file:</label><br />
+            <input type="file" id="json-file-input" class="form-control" accept=".json" style="display: none;">
+            <button id="load-data-button" class="btn btn-primary" onclick="document.getElementById('json-file-input').click()">Load JSON Data</button>
+            <button id="show-example-button" class="btn btn-secondary ms-2" onclick="loadExampleJson()">Show Example</button>
+        </div>
+
         <div id="color-palette" class="palette mt-4">
             <div class="swatch" style="background-color: #000000;"></div>
         </div>
@@ -41,10 +48,12 @@
             <button id="shift-right" class="btn btn-primary">Shift Right</button>
             <button id="shift-up" class="btn btn-primary">Shift Up</button>
             <button id="shift-down" class="btn btn-primary">Shift Down</button>
+            <button id="clear-button" class="btn btn-danger ms-2" onclick="clearGridAndPalette()">Clear</button>
         </div>
 
         <div id="export-functions-container" class="mt-5">
-            <button id="export-button" class="export-button btn btn-success" onclick="exportGrid()">Generate code</button>
+            <button id="export-button" class="export-button btn btn-success" onclick="exportGrid()">Generate Image Data</button>
+            <button id="show-full-code-button" class="btn btn-success" onclick="showFullPythonCode()">Show Full Python Code</button>
             <button id="select-all-button" class="btn btn-secondary" onclick="selectAllText()">Select All</button>
             <button id="copy-clipboard-button" class="btn btn-secondary" onclick="copyToClipboard()">Copy to Clipboard</button>
         </div>
@@ -70,5 +79,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
     <script src="script.js"></script>
+
+    <!-- Lightbox Modal for JSON display -->
+    <div class="modal fade" id="jsonLightboxModal" tabindex="-1" aria-labelledby="jsonLightboxLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="jsonLightboxLabel">Example JSON</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" style="background: #f8f9fa;">
+            <pre style="font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace; font-size: 1em; background: #f8f9fa; border: none;" id="jsonLightboxContent"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
 </body>
 </html>

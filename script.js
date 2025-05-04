@@ -30,6 +30,129 @@ let jsonData;
 const colorToIndexMap = {};
 const indexToGridPositionsMap = {};
 
+// Python code templates for different Unicorn types
+const pythonTemplates = {
+    'Stellar Unicorn': `from stellar import StellarUnicorn
+from picographics import PicoGraphics, DISPLAY_STELLAR_UNICORN
+import time
+
+# create a PicoGraphics framebuffer to draw into
+graphics = PicoGraphics(display=DISPLAY_STELLAR_UNICORN)
+
+# create our StellarUnicorn object
+su = StellarUnicorn()
+
+# paste your generated code from the Unicorn pixel art tool in here
+{IMAGE_DATA}
+
+# grab the data from the code
+palette_data = image["palette"]
+pixel_data = image["grid"]
+
+# pen colours to draw with
+BG = graphics.create_pen(0, 0, 0)
+
+while True:
+    # clear the graphics object
+    graphics.set_pen(BG)
+    graphics.clear()
+
+    # draw the graphics
+    for y, row in enumerate(pixel_data):
+        for x, pixel in enumerate(row):
+            r = palette_data[pixel]["r"]
+            g = palette_data[pixel]["g"]
+            b = palette_data[pixel]["b"]
+            FG = graphics.create_pen(r, g, b)
+            graphics.set_pen(FG)
+            graphics.pixel(x, y)
+
+    # update the display
+    su.update(graphics)
+
+    time.sleep(0.02)`,
+
+    'Galactic Unicorn': `from galactic import GalacticUnicorn
+from picographics import PicoGraphics, DISPLAY_GALACTIC_UNICORN
+import time
+
+# create a PicoGraphics framebuffer to draw into
+graphics = PicoGraphics(display=DISPLAY_GALACTIC_UNICORN)
+
+# create our GalacticUnicorn object
+gu = GalacticUnicorn()
+
+# paste your generated code from the Unicorn pixel art tool in here
+{IMAGE_DATA}
+
+# grab the data from the code
+palette_data = image["palette"]
+pixel_data = image["grid"]
+
+# pen colours to draw with
+BG = graphics.create_pen(0, 0, 0)
+
+while True:
+    # clear the graphics object
+    graphics.set_pen(BG)
+    graphics.clear()
+
+    # draw the graphics
+    for y, row in enumerate(pixel_data):
+        for x, pixel in enumerate(row):
+            r = palette_data[pixel]["r"]
+            g = palette_data[pixel]["g"]
+            b = palette_data[pixel]["b"]
+            FG = graphics.create_pen(r, g, b)
+            graphics.set_pen(FG)
+            graphics.pixel(x, y)
+
+    # update the display
+    gu.update(graphics)
+
+    time.sleep(0.02)`,
+
+    'Cosmic Unicorn': `from cosmic import CosmicUnicorn
+from picographics import PicoGraphics, DISPLAY_COSMIC_UNICORN
+import time
+
+# create a PicoGraphics framebuffer to draw into
+graphics = PicoGraphics(display=DISPLAY_COSMIC_UNICORN)
+
+# create our CosmicUnicorn object
+cu = CosmicUnicorn()
+
+# paste your generated code from the Unicorn pixel art tool in here
+{IMAGE_DATA}
+
+# grab the data from the code
+palette_data = image["palette"]
+pixel_data = image["grid"]
+
+# pen colours to draw with
+BG = graphics.create_pen(0, 0, 0)
+
+while True:
+    # clear the graphics object
+    graphics.set_pen(BG)
+    graphics.clear()
+
+    # draw the graphics
+    for y, row in enumerate(pixel_data):
+        for x, pixel in enumerate(row):
+            r = palette_data[pixel]["r"]
+            g = palette_data[pixel]["g"]
+            b = palette_data[pixel]["b"]
+            FG = graphics.create_pen(r, g, b)
+            graphics.set_pen(FG)
+            graphics.pixel(x, y)
+
+    # update the display
+    cu.update(graphics)
+
+    time.sleep(0.02)`
+};
+
 // Palette Functions
 function createPalette() {
     const paletteContainer = document.getElementById('color-palette');
@@ -125,7 +248,7 @@ function formatPythonCode(data) {
     formattedPalette = formattedPalette.substring(0, formattedPalette.length - 1);
 
     // Assembling the final code with value and label
-    const formattedCode = `data = {
+    const formattedCode = `image = {
 ${indent}"value": "none",
 ${indent}"label": "None",
 ${indent}"grid": [
@@ -264,7 +387,7 @@ function exportGrid() {
     const exportTextBox = document.getElementById("export-text-box");
     exportTextBox.textContent = formattedPythonCode;
     exportTextBox.style.display = 'block';
-    toggleExportButtons(true); // Call the function to show the buttons
+    toggleExportButtons(true);
 }
 
 function createColorMapping(oldColors, newColors) {
@@ -387,15 +510,38 @@ function populateTemplateDropdown() {
 }
 
 // Event Listeners
+// Enable drawing while dragging with the mouse
+let isDrawing = false;
+
 const canvas = document.getElementById('pixel-canvas');
 canvas.addEventListener('mousedown', function (e) {
-    const cellSize = canvas.width / gridSize.width;
-    const x = Math.floor(e.offsetX / cellSize);
-    const y = Math.floor(e.offsetY / cellSize);
-
-    grid[x][y] = selectedColor;
-    drawGrid();
+    if (e.button !== 0) return; // Only left mouse button
+    isDrawing = true;
+    fillPixelFromEvent(e);
 });
+canvas.addEventListener('mousemove', function (e) {
+    if (isDrawing) {
+        fillPixelFromEvent(e);
+    }
+});
+canvas.addEventListener('mouseup', function (e) {
+    if (e.button === 0) {
+        isDrawing = false;
+    }
+});
+canvas.addEventListener('mouseleave', function () {
+    isDrawing = false;
+});
+
+function fillPixelFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) / (canvas.width / gridSize.width));
+    const y = Math.floor((e.clientY - rect.top) / (canvas.height / gridSize.height));
+    if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
+        grid[x][y] = selectedColor;
+        drawGrid();
+    }
+}
 
 document.getElementById('shift-left').addEventListener('click', shiftLeft);
 document.getElementById('shift-right').addEventListener('click', shiftRight);
@@ -441,13 +587,16 @@ function initializeGrid() {
 function toggleExportButtons(display) {
     const selectButton = document.getElementById('select-all-button');
     const copyButton = document.getElementById('copy-clipboard-button');
+    const fullCodeButton = document.getElementById('show-full-code-button');
     
     if (display) {
         selectButton.style.display = 'inline-block';
         copyButton.style.display = 'inline-block';
+        fullCodeButton.style.display = 'inline-block';
     } else {
         selectButton.style.display = 'none';
         copyButton.style.display = 'none';
+        fullCodeButton.style.display = 'none';
     }
 }
 
@@ -480,12 +629,234 @@ document.addEventListener("DOMContentLoaded", function () {
     drawGrid();
     toggleExportButtons(false);
 
+    // Add event listener for JSON file input
+    const jsonFileInput = document.getElementById('json-file-input');
+    jsonFileInput.addEventListener('change', handleJSONFileLoad);
+
     // Apply the default grid size to the select menu on initial load
     const gridSizeSelect = document.getElementById('grid-size-select');
     const defaultGridSize = config.defaultUnicornGrid;
     if (gridSizeSelect) {
         gridSizeSelect.value = config.unicornGridSizes[defaultGridSize];
         changeGridSize(config.unicornGridSizes[defaultGridSize]);
-        populateTemplateDropdown(); // Populate the template dropdown based on the new grid size
+        populateTemplateDropdown();
     }
 });
+
+// Function to get the full Python code
+function getFullPythonCode() {
+    const gridSizeSelect = document.getElementById('grid-size-select');
+    const selectedLabel = gridSizeSelect.options[gridSizeSelect.selectedIndex].text;
+    const template = pythonTemplates[selectedLabel];
+    
+    if (!template) {
+        return 'Error: Unknown Unicorn type';
+    }
+
+    const exportTextBox = document.getElementById("export-text-box");
+    const imageData = exportTextBox.textContent || '';
+    
+    return template.replace('{IMAGE_DATA}', imageData);
+}
+
+// Function to show full Python code
+function showFullPythonCode() {
+    const exportTextBox = document.getElementById("export-text-box");
+    const fullCode = getFullPythonCode();
+    exportTextBox.textContent = fullCode;
+}
+
+// Function to handle loading JSON data
+function handleJSONFileLoad(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let content = e.target.result.trim();
+            // Remove any prefix like 'data =' or 'image =' (with optional spaces) before the first '{'
+            content = content.replace(/^(data|image)\s*=\s*/, '');
+            content = content.trim();
+            if (!content.startsWith('{')) {
+                alert('Could not find JSON object in file.');
+                return;
+            }
+            const jsonData = JSON.parse(content);
+            
+            // Check if it's a valid image data structure
+            if (!jsonData.grid || !jsonData.palette) {
+                alert('Invalid JSON format. File must contain "grid" and "palette" properties.');
+                return;
+            }
+
+            // Convert RGB palette to hex colors
+            paletteColors = jsonData.palette.map(color => 
+                rgbToHex(color.r, color.g, color.b)
+            );
+
+            // Update the grid size based on the loaded data
+            const newWidth = jsonData.grid[0].length;
+            const newHeight = jsonData.grid.length;
+            
+            // Find the matching grid size in the config
+            let matchingSize = null;
+            for (const [label, size] of Object.entries(config.unicornGridSizes)) {
+                const [width, height] = size.split(',').map(Number);
+                if (width === newWidth && height === newHeight) {
+                    matchingSize = label;
+                    break;
+                }
+            }
+
+            if (!matchingSize) {
+                alert(`Warning: Grid size ${newWidth}x${newHeight} doesn't match any Unicorn display type.`);
+                return;
+            }
+
+            // Update the grid size dropdown
+            const gridSizeSelect = document.getElementById('grid-size-select');
+            gridSizeSelect.value = config.unicornGridSizes[matchingSize];
+            
+            // Update the grid size
+            changeGridSize(config.unicornGridSizes[matchingSize]);
+
+            // Create new color mapping
+            createPalette();
+
+            // Update the grid with the loaded data
+            for (let y = 0; y < gridSize.height; y++) {
+                for (let x = 0; x < gridSize.width; x++) {
+                    const colorIndex = jsonData.grid[y][x];
+                    grid[x][y] = paletteColors[colorIndex];
+                }
+            }
+
+            // Redraw the grid
+            drawGrid();
+
+        } catch (error) {
+            alert('Error loading JSON file: ' + error.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Function to clear all pixels and reset to the default palette
+function clearGridAndPalette() {
+    if (!confirm('Are you sure you want to clear the editor? All pixels and colours will revert to the defaults')) {
+        return;
+    }
+    // Reset paletteColors to default
+    paletteColors = [...config.defaultPaletteColors];
+    createPalette();
+
+    // Reset grid to default color
+    grid = createEmptyGrid(gridSize.width, gridSize.height, config.canvasFillColor);
+    drawGrid();
+
+    // Reset template selection to None (first option)
+    const templateSelect = document.getElementById('template-select');
+    if (templateSelect && templateSelect.options.length > 0) {
+        templateSelect.selectedIndex = 0;
+    }
+}
+
+// Function to save the current image as a template
+function saveCurrentAsTemplate() {
+    const gridSizeSelect = document.getElementById('grid-size-select');
+    const selectedGridSize = gridSizeSelect.value;
+    const templateName = prompt('Enter a name for this template:');
+    if (!templateName) return;
+
+    // Format value and label
+    const value = templateName.trim().toLowerCase().replace(/\s+/g, '-');
+    const label = templateName.trim().replace(/\b\w/g, c => c.toUpperCase());
+
+    // Build the template object in the same format as Skyline
+    const paletteRGB = paletteColors.map(hex => hexToRgb(hex));
+    const paletteMap = {};
+    paletteColors.forEach((color, idx) => { paletteMap[color] = idx; });
+    const gridIndexes = [];
+    for (let y = 0; y < gridSize.height; y++) {
+        const row = [];
+        for (let x = 0; x < gridSize.width; x++) {
+            const color = grid[x][y];
+            row.push(paletteMap[color] !== undefined ? paletteMap[color] : 0);
+        }
+        gridIndexes.push(row);
+    }
+    const newTemplate = {
+        value: value,
+        label: label,
+        grid: gridIndexes,
+        palette: paletteRGB
+    };
+
+    // Add to the correct section in gridTemplates
+    if (!window.gridTemplates) window.gridTemplates = {};
+    if (!window.gridTemplates[selectedGridSize]) window.gridTemplates[selectedGridSize] = [];
+    window.gridTemplates[selectedGridSize].push(newTemplate);
+
+    // Update the template dropdown
+    populateTemplateDropdown();
+    // Select the newly added template
+    const templateSelect = document.getElementById('template-select');
+    if (templateSelect) {
+        templateSelect.selectedIndex = window.gridTemplates[selectedGridSize].length - 1;
+    }
+    alert('Template saved!');
+}
+
+// Function to load example.json and show its contents in a lightbox modal
+function loadExampleJson() {
+    // Get the currently selected grid size
+    const gridSizeSelect = document.getElementById('grid-size-select');
+    const selectedSize = gridSizeSelect.value;
+
+    fetch('example.json')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load example.json');
+            return response.json();
+        })
+        .then(data => {
+            // Get only the templates for the selected size
+            const templates = data[selectedSize];
+            if (!templates) {
+                alert('No examples found for the selected grid size.');
+                return;
+            }
+
+            // Find the test-card template
+            const testCard = templates.find(t => t.value === 'test-card');
+            if (!testCard) {
+                alert('No test-card example found for the selected grid size.');
+                return;
+            }
+
+            // Format just the inner template object
+            let formatted = '{\n';
+            formatted += `    "value": "${testCard.value}",\n`;
+            formatted += `    "label": "${testCard.label}",\n`;
+            formatted += '    "grid": [\n';
+            testCard.grid.forEach((row, rowIndex) => {
+                formatted += `        [${row.join(', ')}]${rowIndex < testCard.grid.length - 1 ? ',' : ''}\n`;
+            });
+            formatted += '    ],\n';
+            formatted += '    "palette": [\n';
+            testCard.palette.forEach((color, colorIndex) => {
+                formatted += `        {"r":${color.r},"g":${color.g},"b":${color.b}}${colorIndex < testCard.palette.length - 1 ? ',' : ''}\n`;
+            });
+            formatted += '    ]\n';
+            formatted += '}';
+            
+            // Set the content in the modal
+            document.getElementById('jsonLightboxContent').textContent = formatted;
+            // Show the modal using Bootstrap's modal API
+            const modal = new bootstrap.Modal(document.getElementById('jsonLightboxModal'));
+            modal.show();
+        })
+        .catch(err => {
+            alert('Error loading example.json: ' + err.message);
+        });
+}
