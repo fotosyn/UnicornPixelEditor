@@ -1,114 +1,133 @@
-# Getting started with the Unicorn Pixel Art Editor
+# Unicorn Pixel Art Editor
 
 ![Publisher](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fpublisher.json) ![Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fversion.json)
 
-### Introduction <a name="introduction"></a>
+A powerful web-based editor for creating pixel art for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). Supports all Unicorn display types with accurate pixel representation and easy-to-use tools.
 
-Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). 
+## Features
 
-You have two options for using the editor: [self-hosting / running locally](#self-host-locally) or using the [online version](https://fotosyn.github.io/UnicornPixelEditor/) hosted on GitHub Pages.
+- **Multi-Device Support**:
+  - Stellar Unicorn (16x16)
+  - Galactic Unicorn (53x11)
+  - Cosmic Unicorn (32x32)
 
-There is also some guidance on running the required Python scripts on the Pimoroni Unicorn LED panels so you can see your artwork in all their LED lit-up glory!
+- **Drawing Tools**:
+  - Click or drag to draw pixels
+  - Customizable color palette
+  - Shift controls (Left, Right, Up, Down)
+  - Clear canvas function
 
-Use our online version: You can begin creating pixel art immediately by selecting colors from the palette and interacting with the canvas.
+- **Import/Export**:
+  - Load from JSON files
+  - Export as Python code
+  - View example templates
+  - Import from images
 
-####  Getting started:
-[How to use the editor](#using-the-editor) / [Use the online version on GitHub Pages](https://fotosyn.github.io/UnicornPixelEditor/)
+- **UI Features**:
+  - Dark/Light theme support
+  - Responsive design
+  - Consistent pixel sizing
+  - Real-time preview
 
-#### Installing the app:
-[Self-hosted installation steps](#self-host-locally) / [Using Thonny and Raspberry Pi Pico](#using-thonny-and-raspberry-pi-pico)
+## Getting Started
 
-#### Support:
-[Useful Resources](#useful-resources)
+### Online Version
+The quickest way to start is using our [online version](https://fotosyn.github.io/UnicornPixelEditor/).
 
----
+### Local Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/fotosyn/UnicornPixelEditor.git
+   cd UnicornPixelEditor
+   ```
 
-## How to use the editor <a name="using-the-editor"></a>
+2. Open `index.html` in your web browser.
 
-- **Grid Size:** You can change the grid size and load templates to get started quickly.
-- **Palette:** Customize the color palette by editing the list of hex color codes.
-- **Tools:** Use the provided tools to draw, shift pixels, and create pixel art on the canvas.
+No additional dependencies or setup required for basic usage.
 
-Now you're ready to start creating pixel art using the Unicorn Pixel Art Editor. Whether you choose to run it locally or use the [online version](https://fotosyn.github.io/UnicornPixelEditor/), have fun, get creative, and enjoy your pixel artwork in their LED-tastic glory!
+## Usage Guide
 
-[Back to top](#top)
+### Basic Controls
+1. Select your Unicorn display type from the "Grid Size" dropdown
+2. Choose a color from the palette
+3. Click or drag on the canvas to draw
+4. Use shift buttons to move your design
+5. Export your design as Python code
 
----
+### Working with Files
+- **Load JSON**: Import existing designs
+- **Export**: Generate Python code for your Unicorn display
+- **Examples**: View sample templates for each display type
 
-## Self-host or run locally <a name="self-host-locally"></a>
+### Python Integration
+1. Export your design using the "Generate Image Data" button
+2. Copy the generated Python code
+3. Paste into your Unicorn display's Python script
+4. Run on your device
 
-Follow these steps to run the Unicorn Pixel Art Editor on your local machine:
+## Display Types
 
-### Prerequisites <a name="prerequisites"></a>
+### Stellar Unicorn (16x16)
+- Perfect for small icons and symbols
+- 256 total pixels
+- Square aspect ratio
 
-**This app runs within a web browser.** Make sure you are using a modern web browser installed (Google Chrome, Mozilla Firefox, Safari, Opera).
+### Galactic Unicorn (53x11)
+- Ideal for scrolling text and wide designs
+- 583 total pixels
+- Wide aspect ratio
 
-### Installation Steps <a name="installation-steps"></a>
+### Cosmic Unicorn (32x32)
+- Best for detailed pixel art
+- 1024 total pixels
+- Square aspect ratio
 
-**Download the Code:**
+## Development
 
-   - Go to the [GitHub repository](https://github.com/github_username/unicorn-pixel-art-editor) of the Unicorn Pixel Art Editor.
-   - Click on the "Code" button, and then select "Download ZIP" to download the code as a ZIP file.
-   - Extract the ZIP file to a directory of your choice on your local machine.
+### Project Structure
+```
+UnicornPixelEditor/
+├── index.htm          # Main HTML file
+├── script.js          # Core JavaScript functionality
+├── styles.css         # CSS styles
+├── theme-switcher.js  # Theme handling
+├── images.json        # Template data
+└── example.json       # Example templates
+```
 
-**Open the Editor:**
+### Contributing
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-   - Navigate to the directory where you extracted the code.
-   - Locate the `index.html` file and open it in your web browser.
+## Using with Pimoroni Unicorn
 
-**Start Creating Pixel Art:**
+### Required Hardware
+- Any Pimoroni Unicorn LED panel
+- Raspberry Pi Pico
+- USB cable
 
-   - Once the editor opens in your browser, you can start creating pixel art by selecting colors from the palette, clicking on the canvas to fill cells, and using various tools provided.
+### Software Setup
+1. Install Thonny IDE
+2. Install Pimoroni MicroPython
+3. Connect your Unicorn display
+4. Copy the generated Python code
+5. Run on your device
 
-**Export Your Pixel Art:**
+## Resources
 
-   - After creating your pixel art, you can export it in Python code format or copy it to the clipboard for use in your projects.
+- [Pimoroni Unicorn Documentation](https://shop.pimoroni.com/products/space-unicorns)
+- [MicroPython Documentation](https://docs.micropython.org/)
+- [Thonny IDE](https://thonny.org/)
 
-[Back to top](#top)
+## License
 
----
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Using Thonny and Raspberry Pi Pico <a name="using-thonny-and-raspberry-pi-pico"></a> 
+## Acknowledgments
 
-To see your pixel art creations come to life on the Pimoroni Unicorn LED panels using a Raspberry Pi Pico, follow these steps:
-
-**Install Thonny:**
-
-   - If you haven't already, install [Thonny](https://thonny.org/), a Python IDE for beginners.
-
-**Connect Your Raspberry Pi Pico:**
-
-   - Connect your Raspberry Pi Pico to your computer using a micro-USB cable.
-
-**Open Thonny:**
-
-   - Open Thonny on your computer.
-
-**Write Your Python Script:**
-
-   - Write a Python script that imports the necessary libraries and displays your pixel art on the Pimoroni Unicorn LED panels connected to the Raspberry Pi Pico.
-
-**Upload the Script:**
-
-   - Upload your Python script to the Raspberry Pi Pico using Thonny.
-
-**Run the Script:**
-
-   - Run the script on the Raspberry Pi Pico, and watch your pixel art light up on the Unicorn LED panels.
-
-[Back to top](#top)
-
----
-
-## Useful Resources <a name="useful-resources"></a> <!-- Added section -->
-
-Here are some additional resources to help you get started with pixel art creation and using Thonny with the onboard Raspberry Pi Pico:
-
-- [Pimoroni Unicorn LED Matrix Guides](https://shop.pimoroni.com/products/space-unicorns?variant=40842632953939)
-- [Pimoroni MicroPython Libraries](https://github.com/pimoroni/pimoroni-pico/releases)
-- [Thonny IDE Documentation](https://docs.thonny.org/en/latest/index.html)
-- [Getting started with Raspberry Pi Pico](https://projects.raspberrypi.org/en/projects/getting-started-with-the-pico)
-
-These resources provide valuable information and tutorials on pixel art, Python programming, and using hardware like the Raspberry Pi Pico. They will enhance your experience with the Unicorn Pixel Art Editor.
-
-[Back to top](#top)
+- Created by [Fotosyn](https://github.com/fotosyn/)
+- Contributors and community members
+- Pimoroni for their excellent LED displays
