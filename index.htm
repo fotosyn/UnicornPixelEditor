@@ -52,6 +52,20 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex align-items-center navigation-controls-row">
+                                <span class="me-3">Tools:</span>
+                                <button id="draw-tool" class="btn btn-outline-primary btn-sm me-2 active" title="Draw Pixel">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button id="fill-tool" class="btn btn-outline-primary btn-sm me-2" title="Flood Fill">
+                                    <i class="fas fa-fill-drip"></i>
+                                </button>
+                                <button id="square-tool" class="btn btn-outline-primary btn-sm me-2" title="Draw Square">
+                                    <i class="fas fa-square"></i>
+                                </button>
+                                <button id="circle-tool" class="btn btn-outline-primary btn-sm me-4" title="Draw Circle">
+                                    <i class="fas fa-circle"></i>
+                                </button>
+                                
                                 <span class="me-3">Shift image:</span>
                                 <button id="shift-left" class="btn btn-outline-primary btn-sm me-2" title="Shift Left">
                                     <i class="fas fa-arrow-left"></i>
@@ -62,8 +76,12 @@
                                 <button id="shift-up" class="btn btn-outline-primary btn-sm me-2" title="Shift Up">
                                     <i class="fas fa-arrow-up"></i>
                                 </button>
-                                <button id="shift-down" class="btn btn-outline-primary btn-sm" title="Shift Down">
+                                <button id="shift-down" class="btn btn-outline-primary btn-sm me-2" title="Shift Down">
                                     <i class="fas fa-arrow-down"></i>
+                                </button>
+                                <span class="mx-3">Reset canvas:</span>
+                                <button id="reset-canvas" class="btn btn-outline-primary btn-sm" title="Reset Canvas" onclick="clearGridAndPalette()">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </div>

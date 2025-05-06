@@ -781,32 +781,13 @@ function populateTemplateDropdown() {
 // Enable drawing while dragging with the mouse
 let isDrawing = false;
 
-const canvas = document.getElementById('pixel-canvas');
-canvas.addEventListener('mousedown', function (e) {
-    if (e.button !== 0) return; // Only left mouse button
-    isDrawing = true;
-    fillPixelFromEvent(e);
-});
-canvas.addEventListener('mousemove', function (e) {
-    if (isDrawing) {
-        fillPixelFromEvent(e);
-    }
-});
-canvas.addEventListener('mouseup', function (e) {
-    if (e.button === 0) {
-        isDrawing = false;
-    }
-});
-canvas.addEventListener('mouseleave', function () {
-    isDrawing = false;
-});
-
-function fillPixelFromEvent(e) {
+// Get grid position from mouse event
+function getGridPositionFromEvent(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     
-    // Get the mouse position relative to the canvas
+    // Get mouse position relative to canvas
     const mouseX = (e.clientX - rect.left);
     const mouseY = (e.clientY - rect.top);
     
@@ -818,9 +799,85 @@ function fillPixelFromEvent(e) {
     const x = Math.floor(canvasX / (canvas.width / gridSize.width));
     const y = Math.floor(canvasY / (canvas.height / gridSize.height));
     
+    return { x, y };
+}
+
+const canvas = document.getElementById('pixel-canvas');
+canvas.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return; // Only left mouse button
+    
+    isDrawing = true;
+    const pos = getGridPositionFromEvent(e);
+    
+    // Different behavior based on selected tool
+    switch (currentTool) {
+        case 'draw':
+            fillPixelFromEvent(e);
+            break;
+        case 'fill':
+            if (pos.x >= 0 && pos.x < gridSize.width && pos.y >= 0 && pos.y < gridSize.height) {
+                const targetColor = grid[pos.x][pos.y];
+                floodFill(pos.x, pos.y, targetColor, selectedColor);
+                drawGrid();
+            }
+            break;
+        case 'square':
+        case 'circle':
+            drawStartPosition = pos;
+            break;
+    }
+});
+
+canvas.addEventListener('mousemove', function (e) {
+    if (!isDrawing) return;
+    
+    switch (currentTool) {
+        case 'draw':
+            fillPixelFromEvent(e);
+            break;
+        case 'square':
+        case 'circle':
+            // Just for preview - will implement later if needed
+            break;
+    }
+});
+
+canvas.addEventListener('mouseup', function (e) {
+    if (e.button !== 0) return; // Only left mouse button
+    
+    if (isDrawing) {
+        const endPos = getGridPositionFromEvent(e);
+        
+        switch (currentTool) {
+            case 'square':
+                if (drawStartPosition) {
+                    drawSquare(drawStartPosition.x, drawStartPosition.y, endPos.x, endPos.y, selectedColor);
+                    drawGrid();
+                }
+                break;
+            case 'circle':
+                if (drawStartPosition) {
+                    drawCircle(drawStartPosition.x, drawStartPosition.y, endPos.x, endPos.y, selectedColor);
+                    drawGrid();
+                }
+                break;
+        }
+        
+        drawStartPosition = null;
+        isDrawing = false;
+    }
+});
+
+canvas.addEventListener('mouseleave', function () {
+    isDrawing = false;
+});
+
+function fillPixelFromEvent(e) {
+    const pos = getGridPositionFromEvent(e);
+    const x = pos.x;
+    const y = pos.y;
+    
     // Debug output
-    console.log('Mouse:', mouseX, mouseY);
-    console.log('Canvas:', canvasX, canvasY);
     console.log('Grid:', x, y, 'Max:', gridSize.width, gridSize.height);
     
     // Check if the coordinates are within bounds
@@ -829,6 +886,17 @@ function fillPixelFromEvent(e) {
         drawGrid();
     }
 }
+
+// Add event listeners for tool buttons
+document.addEventListener("DOMContentLoaded", function() {
+    // ... existing code ...
+    
+    // Add tool button listeners
+    document.getElementById('draw-tool').addEventListener('click', () => selectTool('draw'));
+    document.getElementById('fill-tool').addEventListener('click', () => selectTool('fill'));
+    document.getElementById('square-tool').addEventListener('click', () => selectTool('square'));
+    document.getElementById('circle-tool').addEventListener('click', () => selectTool('circle'));
+});
 
 document.getElementById('shift-left').addEventListener('click', shiftLeft);
 document.getElementById('shift-right').addEventListener('click', shiftRight);
@@ -953,6 +1021,15 @@ document.addEventListener("DOMContentLoaded", function() {
             loadTemplate();
         }
     });
+    
+    // Add tool button listeners
+    document.getElementById('draw-tool').addEventListener('click', () => selectTool('draw'));
+    document.getElementById('fill-tool').addEventListener('click', () => selectTool('fill'));
+    document.getElementById('square-tool').addEventListener('click', () => selectTool('square'));
+    document.getElementById('circle-tool').addEventListener('click', () => selectTool('circle'));
+    
+    // Set default tool
+    selectTool('draw');
 });
 
 // Function to get the full Python code
@@ -1472,5 +1549,264 @@ if (typeof handleImageFileSelect !== 'function') {
             
             reader.readAsDataURL(file);
         });
+    }
+}
+
+// Initialize drawing tool variables
+let currentTool = 'draw'; // Default tool is draw (pencil)
+let drawStartPosition = null; // For shape tools - starting position
+
+// Tool functions
+function selectTool(toolName) {
+    // Reset any active states on tool buttons
+    document.querySelectorAll('.navigation-controls-row button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Set the current tool
+    currentTool = toolName;
+    
+    // Add active class to the selected tool button
+    document.getElementById(`${toolName}-tool`).classList.add('active');
+    
+    // Update cursor style based on tool
+    const canvas = document.getElementById('pixel-canvas');
+    switch(toolName) {
+        case 'draw':
+            canvas.style.cursor = 'crosshair';
+            break;
+        case 'fill':
+            canvas.style.cursor = 'cell';
+            break;
+        case 'square':
+        case 'circle':
+            canvas.style.cursor = 'crosshair';
+            break;
+        default:
+            canvas.style.cursor = 'default';
+    }
+}
+
+// Flood fill implementation (4-way)
+function floodFill(x, y, targetColor, replacementColor) {
+    // Bounds check
+    if (x < 0 || x >= gridSize.width || y < 0 || y >= gridSize.height) {
+        return;
+    }
+    
+    // If current pixel is not the target color, return
+    if (grid[x][y] !== targetColor) {
+        return;
+    }
+    
+    // If current pixel is already the replacement color, return
+    if (grid[x][y] === replacementColor) {
+        return;
+    }
+    
+    // Set current pixel to replacement color
+    grid[x][y] = replacementColor;
+    
+    // Recursively fill in all four directions
+    // Using a queue to prevent stack overflow for large areas
+    const queue = [];
+    queue.push({x, y});
+    
+    while (queue.length > 0) {
+        const current = queue.shift();
+        const cx = current.x;
+        const cy = current.y;
+        
+        // Check north
+        if (cy > 0 && grid[cx][cy-1] === targetColor) {
+            grid[cx][cy-1] = replacementColor;
+            queue.push({x: cx, y: cy-1});
+        }
+        
+        // Check east
+        if (cx < gridSize.width - 1 && grid[cx+1][cy] === targetColor) {
+            grid[cx+1][cy] = replacementColor;
+            queue.push({x: cx+1, y: cy});
+        }
+        
+        // Check south
+        if (cy < gridSize.height - 1 && grid[cx][cy+1] === targetColor) {
+            grid[cx][cy+1] = replacementColor;
+            queue.push({x: cx, y: cy+1});
+        }
+        
+        // Check west
+        if (cx > 0 && grid[cx-1][cy] === targetColor) {
+            grid[cx-1][cy] = replacementColor;
+            queue.push({x: cx-1, y: cy});
+        }
+    }
+}
+
+// Draw a square
+function drawSquare(startX, startY, endX, endY, color) {
+    // Ensure startX <= endX and startY <= endY
+    if (startX > endX) [startX, endX] = [endX, startX];
+    if (startY > endY) [startY, endY] = [endY, startY];
+    
+    // Make sure we're within bounds
+    startX = Math.max(0, Math.min(startX, gridSize.width - 1));
+    startY = Math.max(0, Math.min(startY, gridSize.height - 1));
+    endX = Math.max(0, Math.min(endX, gridSize.width - 1));
+    endY = Math.max(0, Math.min(endY, gridSize.height - 1));
+    
+    // Draw top and bottom lines
+    for (let x = startX; x <= endX; x++) {
+        grid[x][startY] = color;
+        grid[x][endY] = color;
+    }
+    
+    // Draw left and right lines
+    for (let y = startY + 1; y < endY; y++) {
+        grid[startX][y] = color;
+        grid[endX][y] = color;
+    }
+}
+
+// Draw a circle or oval
+function drawCircle(startX, startY, endX, endY, color) {
+    // Ensure startX <= endX and startY <= endY
+    if (startX > endX) [startX, endX] = [endX, startX];
+    if (startY > endY) [startY, endY] = [endY, startY];
+    
+    // Make sure we're within bounds
+    startX = Math.max(0, Math.min(startX, gridSize.width - 1));
+    startY = Math.max(0, Math.min(startY, gridSize.height - 1));
+    endX = Math.max(0, Math.min(endX, gridSize.width - 1));
+    endY = Math.max(0, Math.min(endY, gridSize.height - 1));
+    
+    // Calculate center and radii
+    const centerX = Math.floor((startX + endX) / 2);
+    const centerY = Math.floor((startY + endY) / 2);
+    
+    // Calculate both x and y radii for oval support
+    const radiusX = Math.max(1, Math.floor((endX - startX) / 2));
+    const radiusY = Math.max(1, Math.floor((endY - startY) / 2));
+    
+    // Implementation of midpoint ellipse algorithm
+    // This is a modified version of Bresenham's algorithm that supports ovals
+    drawEllipse(centerX, centerY, radiusX, radiusY, color);
+}
+
+// Helper function to draw an ellipse using midpoint algorithm
+function drawEllipse(centerX, centerY, radiusX, radiusY, color) {
+    // Special case: if radiusX equals radiusY, we can use a simpler circle algorithm
+    if (radiusX === radiusY) {
+        return drawPerfectCircle(centerX, centerY, radiusX, color);
+    }
+    
+    // Handle oval of width 1 or height 1 as a special case
+    if (radiusX === 0 || radiusY === 0) {
+        // Draw a line instead
+        if (radiusX === 0) {
+            for (let y = centerY - radiusY; y <= centerY + radiusY; y++) {
+                setPixelSafe(centerX, y, color);
+            }
+        } else {
+            for (let x = centerX - radiusX; x <= centerX + radiusX; x++) {
+                setPixelSafe(x, centerY, color);
+            }
+        }
+        return;
+    }
+    
+    // Midpoint ellipse algorithm
+    let x = 0;
+    let y = radiusY;
+    
+    // Initial decision parameter for region 1
+    let d1 = (radiusY * radiusY) - (radiusX * radiusX * radiusY) + (0.25 * radiusX * radiusX);
+    let dx = 2 * radiusY * radiusY * x;
+    let dy = 2 * radiusX * radiusX * y;
+    
+    // Region 1
+    while (dx < dy) {
+        // Plot four points for each quadrant
+        setPixelSafe(centerX + x, centerY + y, color);
+        setPixelSafe(centerX - x, centerY + y, color);
+        setPixelSafe(centerX + x, centerY - y, color);
+        setPixelSafe(centerX - x, centerY - y, color);
+        
+        // Increment x
+        x++;
+        dx += 2 * radiusY * radiusY;
+        
+        // Check if decision parameter should be updated
+        if (d1 < 0) {
+            d1 += dx + (radiusY * radiusY);
+        } else {
+            y--;
+            dy -= 2 * radiusX * radiusX;
+            d1 += dx - dy + (radiusY * radiusY);
+        }
+    }
+    
+    // Decision parameter for region 2
+    let d2 = ((radiusY * radiusY) * ((x + 0.5) * (x + 0.5))) + 
+             ((radiusX * radiusX) * ((y - 1) * (y - 1))) - 
+             (radiusX * radiusX * radiusY * radiusY);
+    
+    // Region 2
+    while (y >= 0) {
+        // Plot four points for each quadrant
+        setPixelSafe(centerX + x, centerY + y, color);
+        setPixelSafe(centerX - x, centerY + y, color);
+        setPixelSafe(centerX + x, centerY - y, color);
+        setPixelSafe(centerX - x, centerY - y, color);
+        
+        // Decrement y
+        y--;
+        dy -= 2 * radiusX * radiusX;
+        
+        // Check if decision parameter should be updated
+        if (d2 > 0) {
+            d2 += (radiusX * radiusX) - dy;
+        } else {
+            x++;
+            dx += 2 * radiusY * radiusY;
+            d2 += dx - dy + (radiusX * radiusX);
+        }
+    }
+}
+
+// Helper for drawing a perfect circle using Bresenham's algorithm (faster than ellipse for this case)
+function drawPerfectCircle(centerX, centerY, radius, color) {
+    let x = 0;
+    let y = radius;
+    let d = 3 - 2 * radius;
+    
+    const drawCirclePixels = (cx, cy, x, y) => {
+        // Draw 8 octants
+        setPixelSafe(cx + x, cy + y, color);
+        setPixelSafe(cx - x, cy + y, color);
+        setPixelSafe(cx + x, cy - y, color);
+        setPixelSafe(cx - x, cy - y, color);
+        setPixelSafe(cx + y, cy + x, color);
+        setPixelSafe(cx - y, cy + x, color);
+        setPixelSafe(cx + y, cy - x, color);
+        setPixelSafe(cx - y, cy - x, color);
+    };
+    
+    while (y >= x) {
+        drawCirclePixels(centerX, centerY, x, y);
+        x++;
+        if (d > 0) {
+            y--;
+            d = d + 4 * (x - y) + 10;
+        } else {
+            d = d + 4 * x + 6;
+        }
+    }
+}
+
+// Helper function to safely set a pixel if in bounds
+function setPixelSafe(x, y, color) {
+    if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
+        grid[x][y] = color;
     }
 }

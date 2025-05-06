@@ -257,6 +257,13 @@ body {
     justify-content: center;
 }
 
+/* Drawing tool buttons */
+.navigation-controls-row button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
 /* Form elements */
 .form-select,
 .form-control {
@@ -557,4 +564,15 @@ footer {
     background-color: var(--primary-color);
     color: white;
     transform: scale(1.1);
+}
+
+/* Reset button styles */
+#reset-canvas:hover {
+    background-color: #dc3545 !important; /* Bootstrap danger red */
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+#reset-canvas:hover i {
+    color: white !important;
 }
