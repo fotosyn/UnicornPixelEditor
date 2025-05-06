@@ -195,54 +195,58 @@
         </div>
     </div>
 
+    <!-- Palette Editor Modal -->
+    <div class="modal fade" id="paletteEditorModal" tabindex="-1" aria-labelledby="paletteEditorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paletteEditorModalLabel">Edit Color Palette</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="current-color-preview mb-3">
+                        <label>Selected Color:</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <div id="currentColorPreview" class="color-preview"></div>
+                            <input type="text" id="hexColorInput" class="form-control" placeholder="#000000">
+                        </div>
+                    </div>
+                    
+                    <div class="rgb-sliders">
+                        <div class="mb-3">
+                            <label for="redSlider" class="form-label">Red</label>
+                            <input type="range" class="form-range" id="redSlider" min="0" max="255" value="0">
+                            <input type="number" class="form-control form-control-sm" id="redInput" min="0" max="255" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="greenSlider" class="form-label">Green</label>
+                            <input type="range" class="form-range" id="greenSlider" min="0" max="255" value="0">
+                            <input type="number" class="form-control form-control-sm" id="greenInput" min="0" max="255" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="blueSlider" class="form-label">Blue</label>
+                            <input type="range" class="form-range" id="blueSlider" min="0" max="255" value="0">
+                            <input type="number" class="form-control form-control-sm" id="blueInput" min="0" max="255" value="0">
+                        </div>
+                    </div>
+
+                    <div class="palette-preview mt-4">
+                        <label>Palette:</label>
+                        <div id="palettePreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="savePaletteBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script src="theme-switcher.js"></script>
-    <script>
-    // Enable drawing while dragging with the mouse
-    let isDrawing = false;
-
-    const canvas = document.getElementById('pixel-canvas');
-    canvas.addEventListener('mousedown', function (e) {
-        if (e.button !== 0) return; // Only left mouse button
-        isDrawing = true;
-        fillPixelFromEvent(e);
-    });
-    canvas.addEventListener('mousemove', function (e) {
-        if (isDrawing) {
-            fillPixelFromEvent(e);
-        }
-    });
-    canvas.addEventListener('mouseup', function (e) {
-        if (e.button === 0) {
-            isDrawing = false;
-        }
-    });
-    canvas.addEventListener('mouseleave', function () {
-        isDrawing = false;
-    });
-
-    function fillPixelFromEvent(e) {
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        
-        // Calculate the actual position in the canvas accounting for scaling
-        const canvasX = (e.clientX - rect.left) * scaleX;
-        const canvasY = (e.clientY - rect.top) * scaleY;
-        
-        // Calculate grid position
-        const x = Math.floor(canvasX / (canvas.width / gridSize.width));
-        const y = Math.floor(canvasY / (canvas.height / gridSize.height));
-        
-        // Check if the coordinates are within bounds
-        if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
-            grid[x][y] = selectedColor;
-            drawGrid();
-        }
-    }
-    </script>
 </body>
 </html>
