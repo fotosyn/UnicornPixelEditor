@@ -200,5 +200,49 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script src="theme-switcher.js"></script>
+    <script>
+    // Enable drawing while dragging with the mouse
+    let isDrawing = false;
+
+    const canvas = document.getElementById('pixel-canvas');
+    canvas.addEventListener('mousedown', function (e) {
+        if (e.button !== 0) return; // Only left mouse button
+        isDrawing = true;
+        fillPixelFromEvent(e);
+    });
+    canvas.addEventListener('mousemove', function (e) {
+        if (isDrawing) {
+            fillPixelFromEvent(e);
+        }
+    });
+    canvas.addEventListener('mouseup', function (e) {
+        if (e.button === 0) {
+            isDrawing = false;
+        }
+    });
+    canvas.addEventListener('mouseleave', function () {
+        isDrawing = false;
+    });
+
+    function fillPixelFromEvent(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        // Calculate the actual position in the canvas accounting for scaling
+        const canvasX = (e.clientX - rect.left) * scaleX;
+        const canvasY = (e.clientY - rect.top) * scaleY;
+        
+        // Calculate grid position
+        const x = Math.floor(canvasX / (canvas.width / gridSize.width));
+        const y = Math.floor(canvasY / (canvas.height / gridSize.height));
+        
+        // Check if the coordinates are within bounds
+        if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
+            grid[x][y] = selectedColor;
+            drawGrid();
+        }
+    }
+    </script>
 </body>
 </html>

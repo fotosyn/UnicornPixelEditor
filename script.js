@@ -329,24 +329,26 @@ function changeGridSize(size) {
     const pixelSize = 16;
 
     gridSize = parseGridSize(size);
-    const maxSize = Math.max(gridSize.width, gridSize.height);
     const canvasWidth = gridSize.width * pixelSize;
     const canvasHeight = gridSize.height * pixelSize;
 
+    // Set canvas dimensions
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
+    // Clear and draw grid
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let x = 0; x <= canvas.width; x += pixelSize) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
+    // Draw grid lines
+    ctx.beginPath();
+    for (let x = 0; x <= gridSize.width; x++) {
+        ctx.moveTo(x * pixelSize, 0);
+        ctx.lineTo(x * pixelSize, canvasHeight);
     }
-    for (let y = 0; y <= canvas.height; y += pixelSize) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
+    for (let y = 0; y <= gridSize.height; y++) {
+        ctx.moveTo(0, y * pixelSize);
+        ctx.lineTo(canvasWidth, y * pixelSize);
     }
-
     ctx.strokeStyle = config.canvasStrokeStyle;
     ctx.stroke();
 
@@ -355,13 +357,19 @@ function changeGridSize(size) {
     paletteColors = [...config.defaultPaletteColors];
     createPalette();
     
-    // Reset template selection to first option (usually "None")
+    // Update pixel size display
+    const pixelSizeSpan = document.getElementById('pixel-size');
+    if (pixelSizeSpan) {
+        pixelSizeSpan.textContent = `${gridSize.width} x ${gridSize.height}`;
+    }
+
+    // Reset template selection
     const templateSelect = document.getElementById('template-select');
     if (templateSelect && templateSelect.options.length > 0) {
         templateSelect.selectedIndex = 0;
     }
 
-    // Clear any export text
+    // Clear export text
     const exportTextBox = document.getElementById("export-text-box");
     if (exportTextBox) {
         exportTextBox.textContent = '';
@@ -371,7 +379,7 @@ function changeGridSize(size) {
     // Hide export buttons
     toggleExportButtons(false);
 
-    // Clear any loaded image preview
+    // Clear image preview
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const imagePreview = document.getElementById('image-preview');
     if (imagePreviewContainer && imagePreview) {
@@ -379,13 +387,12 @@ function changeGridSize(size) {
         imagePreviewContainer.style.display = 'none';
     }
 
-    // Reset the file input
+    // Reset file input
     const imageFileInput = document.getElementById('image-file-input');
     if (imageFileInput) {
         imageFileInput.value = '';
     }
 
-    console.log(`Canvas resized to: ${canvas.width}x${canvas.height}`);
     drawGrid();
 }
 
@@ -590,8 +597,27 @@ canvas.addEventListener('mouseleave', function () {
 
 function fillPixelFromEvent(e) {
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / (canvas.width / gridSize.width));
-    const y = Math.floor((e.clientY - rect.top) / (canvas.height / gridSize.height));
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    // Get the mouse position relative to the canvas
+    const mouseX = (e.clientX - rect.left);
+    const mouseY = (e.clientY - rect.top);
+    
+    // Convert to canvas coordinates
+    const canvasX = mouseX * (canvas.width / rect.width);
+    const canvasY = mouseY * (canvas.height / rect.height);
+    
+    // Calculate grid position
+    const x = Math.floor(canvasX / (canvas.width / gridSize.width));
+    const y = Math.floor(canvasY / (canvas.height / gridSize.height));
+    
+    // Debug output
+    console.log('Mouse:', mouseX, mouseY);
+    console.log('Canvas:', canvasX, canvasY);
+    console.log('Grid:', x, y, 'Max:', gridSize.width, gridSize.height);
+    
+    // Check if the coordinates are within bounds
     if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
         grid[x][y] = selectedColor;
         drawGrid();
@@ -801,7 +827,7 @@ function handleJSONFileLoad(event) {
                 for (let x = 0; x < gridSize.width; x++) {
                     const colorIndex = jsonData.grid[y][x];
                     grid[x][y] = paletteColors[colorIndex];
-                }
+    }
             }
 
             // Reset template selection to "none"

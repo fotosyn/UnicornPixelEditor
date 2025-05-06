@@ -103,6 +103,7 @@ body {
     padding: 1.5rem;
     background-color: var(--input-bg);
     border-radius: 0.5rem;
+    min-height: 512px; /* Ensure minimum height */
 }
 
 #pixel-canvas {
@@ -111,8 +112,10 @@ body {
     border: 1px solid var(--canvas-border);
     background-color: #000;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    max-width: 100%;
-    height: auto;
+    max-width: 848px; /* 53 * 16px - matches Galactic Unicorn width */
+    width: 100%;
+    height: auto !important; /* Force aspect ratio preservation */
+    object-fit: contain;
 }
 
 /* Palette styles */
