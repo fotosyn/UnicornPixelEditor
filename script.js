@@ -1198,6 +1198,279 @@ function loadExampleJson() {
 // Add a stub for handleImageFileSelect if not already defined
 if (typeof handleImageFileSelect !== 'function') {
     function handleImageFileSelect() {
-        // Stub: No operation. Implement if needed.
+        const imageFileInput = document.getElementById('image-file-input');
+        if (!imageFileInput) return;
+
+        // Add event listener for file selection
+        imageFileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Only process image files
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Create an image element to load the file
+                const img = new Image();
+                img.onload = function() {
+                    // Get current grid dimensions
+                    const gridSizeSelect = document.getElementById('grid-size-select');
+                    const selectedSize = gridSizeSelect.value;
+                    const [width, height] = selectedSize.split(',').map(Number);
+                    
+                    // Check if the image dimensions match the required grid dimensions
+                    // We'll get the natural dimensions before any resizing
+                    const originalWidth = img.naturalWidth;
+                    const originalHeight = img.naturalHeight;
+                    
+                    // Only allow exact matching dimensions
+                    if (originalWidth !== width || originalHeight !== height) {
+                        alert(`Image dimensions (${originalWidth}×${originalHeight}) don't match the selected grid size (${width}×${height}).\n\nPlease resize your image to exactly ${width}×${height} pixels or select a different grid size.`);
+                        return;
+                    }
+                    
+                    // Create a canvas to process the image
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw the image to the canvas (no resizing needed since dimensions match)
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Get the pixel data
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const pixels = imageData.data;
+                    
+                    // Extract all colors from the image
+                    const colorFrequency = {};
+                    const pixelGrid = [];
+                    
+                    // Initialize pixel grid and collect color frequencies
+                    for (let y = 0; y < height; y++) {
+                        const row = [];
+                        for (let x = 0; x < width; x++) {
+                            const index = (y * width + x) * 4;
+                            const r = pixels[index];
+                            const g = pixels[index + 1];
+                            const b = pixels[index + 2];
+                            const a = pixels[index + 3];
+                            
+                            // Skip transparent pixels
+                            if (a < 128) {
+                                row.push({ r: 0, g: 0, b: 0 });
+                                continue;
+                            }
+                            
+                            const color = { r, g, b };
+                            row.push(color);
+                            
+                            // Count color frequency
+                            const colorKey = `${r},${g},${b}`;
+                            colorFrequency[colorKey] = (colorFrequency[colorKey] || 0) + 1;
+                        }
+                        pixelGrid.push(row);
+                    }
+                    
+                    // Get an array of unique colors sorted by frequency (most frequent first)
+                    const uniqueColors = Object.keys(colorFrequency)
+                        .map(key => {
+                            const [r, g, b] = key.split(',').map(Number);
+                            return { r, g, b, count: colorFrequency[key] };
+                        })
+                        .sort((a, b) => b.count - a.count);
+                    
+                    // Determine optimal palette size based on image complexity
+                    // Use a smaller palette for Unicorn displays (8-32 colors max)
+                    const maxPaletteSize = 32; // Increased from 28 to 32
+                    
+                    // Create a balanced palette with diverse colors
+                    let optimizedPalette = [];
+                    
+                    // Start with the most frequent color
+                    optimizedPalette.push(uniqueColors[0]);
+                    
+                    // Even stricter similarity threshold to ensure more diverse colors
+                    const similarityThreshold = 15; // Increased from 5 to ensure more diversity
+                    
+                    // Divide color space into regions to ensure full coverage
+                    // We'll score each color based on both frequency and distance from existing colors
+                    const calculateScoreForColor = (color) => {
+                        // Base score is frequency relative to most common color
+                        const frequencyScore = Math.sqrt(color.count / uniqueColors[0].count); // Square root to boost less frequent colors
+                        
+                        // Calculate minimum distance to any color in our palette
+                        let minDistance = Number.MAX_VALUE;
+                        for (const existingColor of optimizedPalette) {
+                            const distance = getColorDistance(color, existingColor);
+                            minDistance = Math.min(minDistance, distance);
+                        }
+                        
+                        // Higher minimum distance means more unique color
+                        // Scale it to roughly 0-1 range
+                        const uniquenessScore = Math.min(minDistance / 150, 1);
+                        
+                        // Weight uniqueness much higher than frequency to encourage diversity
+                        return (frequencyScore * 0.1) + (uniquenessScore * 0.9);
+                    };
+                    
+                    // Keep selecting colors until we fill the palette
+                    while (optimizedPalette.length < maxPaletteSize && uniqueColors.length > optimizedPalette.length) {
+                        let bestScore = -1;
+                        let bestColor = null;
+                        
+                        // Check all remaining colors for the best candidate
+                        for (const color of uniqueColors) {
+                            // Skip colors already in the palette
+                            if (optimizedPalette.some(c => c.r === color.r && c.g === color.g && c.b === color.b)) {
+                                continue;
+                            }
+                            
+                            const score = calculateScoreForColor(color);
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestColor = color;
+                            }
+                        }
+                        
+                        if (bestColor) {
+                            optimizedPalette.push(bestColor);
+                        } else {
+                            break; // No suitable colors found
+                        }
+                    }
+                    
+                    // Ensure we have black and white in the palette if they exist in the image
+                    // This helps with common design elements
+                    const ensureColor = (r, g, b) => {
+                        const key = `${r},${g},${b}`;
+                        if (colorFrequency[key] && !optimizedPalette.some(c => c.r === r && c.g === g && c.b === b)) {
+                            // If we're at max palette size, replace the least used color
+                            if (optimizedPalette.length >= maxPaletteSize) {
+                                // Find least frequent color in our palette
+                                let leastUsedIndex = 0;
+                                let leastCount = Number.MAX_VALUE;
+                                
+                                for (let i = 0; i < optimizedPalette.length; i++) {
+                                    const c = optimizedPalette[i];
+                                    const count = colorFrequency[`${c.r},${c.g},${c.b}`] || 0;
+                                    if (count < leastCount) {
+                                        leastCount = count;
+                                        leastUsedIndex = i;
+                                    }
+                                }
+                                
+                                // Replace it if the color we want to ensure is used more
+                                if (colorFrequency[key] > leastCount) {
+                                    optimizedPalette[leastUsedIndex] = {r, g, b, count: colorFrequency[key]};
+                                }
+                            } else {
+                                optimizedPalette.push({r, g, b, count: colorFrequency[key]});
+                            }
+                        }
+                    };
+                    
+                    // Try to ensure we have black and white
+                    ensureColor(0, 0, 0);       // Black 
+                    ensureColor(255, 255, 255); // White
+                    
+                    // Convert the RGB palette to hex colors
+                    const hexPalette = optimizedPalette.map(color => rgbToHex(color.r, color.g, color.b));
+                    
+                    // Update the palette
+                    paletteColors = hexPalette;
+                    createPalette();
+                    
+                    // Ensure grid size is correct
+                    gridSize = { width, height };
+                    
+                    // Create new grid
+                    grid = createEmptyGrid(width, height, config.canvasFillColor);
+                    
+                    // Map each pixel to the closest color in the palette
+                    for (let y = 0; y < height; y++) {
+                        for (let x = 0; x < width; x++) {
+                            const pixelColor = pixelGrid[y][x];
+                            
+                            // Skip black/transparent pixels
+                            if (pixelColor.r === 0 && pixelColor.g === 0 && pixelColor.b === 0 && pixelGrid[y][x].a < 128) {
+                                grid[x][y] = config.canvasFillColor;
+                                continue;
+                            }
+                            
+                            // Find the closest color in the palette
+                            let closestColorIndex = 0;
+                            let minDistance = Number.MAX_VALUE;
+                            
+                            for (let i = 0; i < optimizedPalette.length; i++) {
+                                const paletteColor = optimizedPalette[i];
+                                const distance = getColorDistance(pixelColor, paletteColor);
+                                
+                                if (distance < minDistance) {
+                                    minDistance = distance;
+                                    closestColorIndex = i;
+                                }
+                            }
+                            
+                            grid[x][y] = paletteColors[closestColorIndex];
+                        }
+                    }
+                    
+                    // Show the image preview
+                    const imagePreviewContainer = document.getElementById('image-preview-container');
+                    const imagePreview = document.getElementById('image-preview');
+                    
+                    if (imagePreviewContainer && imagePreview) {
+                        imagePreview.innerHTML = '';
+                        
+                        // Create a preview of the pixelated image
+                        const previewCanvas = document.createElement('canvas');
+                        previewCanvas.width = width * 5;  // Scale up for visibility
+                        previewCanvas.height = height * 5;
+                        const previewCtx = previewCanvas.getContext('2d');
+                        
+                        for (let y = 0; y < height; y++) {
+                            for (let x = 0; x < width; x++) {
+                                previewCtx.fillStyle = grid[x][y];
+                                previewCtx.fillRect(x * 5, y * 5, 5, 5);
+                            }
+                        }
+                        
+                        imagePreview.appendChild(previewCanvas);
+                        imagePreviewContainer.style.display = 'block';
+                    }
+                    
+                    // Update dropdown
+                    const templateSelect = document.getElementById('template-select');
+                    if (templateSelect) {
+                        // Try to find a "none" option
+                        const noneOption = templateSelect.querySelector('option[value="none"]');
+                        if (noneOption) {
+                            templateSelect.value = 'none';
+                        } else {
+                            // Or select first option
+                            templateSelect.selectedIndex = 0;
+                        }
+                    }
+                    
+                    // Update the pixel size display
+                    const pixelSizeSpan = document.getElementById('pixel-size');
+                    if (pixelSizeSpan) {
+                        pixelSizeSpan.textContent = `${width} x ${height}`;
+                    }
+                    
+                    // Redraw the main grid
+                    drawGrid();
+                };
+                
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        });
     }
 }
