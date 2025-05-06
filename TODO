@@ -1,0 +1,5 @@
+- Fix default state for different screen sizes 
+- Fade between images
+- Use display type to select dataset within images.json 
+- Tidy up Pixel Maker
+- Write README
