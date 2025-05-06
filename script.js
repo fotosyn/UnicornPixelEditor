@@ -153,6 +153,40 @@ while True:
     time.sleep(0.02)`
 };
 
+// Initialize empty templates object
+let gridTemplates = {};
+
+// Dynamic color similarity threshold based on palette size
+function getColorSimilarityThreshold(paletteSize) {
+    if (paletteSize <= 16) {
+        return 3;  // Very conservative for small palettes
+    } else if (paletteSize <= 32) {
+        return 8;  // Moderate for medium palettes
+    } else if (paletteSize <= 64) {
+        return 15; // More aggressive for large palettes
+    } else {
+        return 25; // Very aggressive for very large palettes
+    }
+}
+
+// Calculate color distance using Euclidean distance
+function getColorDistance(color1, color2) {
+    const rDiff = color1.r - color2.r;
+    const gDiff = color1.g - color2.g;
+    const bDiff = color1.b - color2.b;
+    return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+}
+
+// Find similar color in palette
+function findSimilarColor(color, palette, threshold) {
+    for (let i = 0; i < palette.length; i++) {
+        if (getColorDistance(color, palette[i]) <= threshold) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 // Palette Functions
 function createPalette() {
     const paletteContainer = document.getElementById('color-palette');
@@ -316,10 +350,42 @@ function changeGridSize(size) {
     ctx.strokeStyle = config.canvasStrokeStyle;
     ctx.stroke();
 
-    console.log(`Canvas resized to: ${canvas.width}x${canvas.height}`);
-
+    // Reset everything to defaults
     grid = createEmptyGrid(gridSize.width, gridSize.height, config.canvasFillColor);
+    paletteColors = [...config.defaultPaletteColors];
+    createPalette();
+    
+    // Reset template selection to first option (usually "None")
+    const templateSelect = document.getElementById('template-select');
+    if (templateSelect && templateSelect.options.length > 0) {
+        templateSelect.selectedIndex = 0;
+    }
 
+    // Clear any export text
+    const exportTextBox = document.getElementById("export-text-box");
+    if (exportTextBox) {
+        exportTextBox.textContent = '';
+        exportTextBox.style.display = 'none';
+    }
+
+    // Hide export buttons
+    toggleExportButtons(false);
+
+    // Clear any loaded image preview
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    if (imagePreviewContainer && imagePreview) {
+        imagePreview.innerHTML = '';
+        imagePreviewContainer.style.display = 'none';
+    }
+
+    // Reset the file input
+    const imageFileInput = document.getElementById('image-file-input');
+    if (imageFileInput) {
+        imageFileInput.value = '';
+    }
+
+    console.log(`Canvas resized to: ${canvas.width}x${canvas.height}`);
     drawGrid();
 }
 
@@ -480,33 +546,22 @@ function loadGridAndPalette(templateData) {
 }
 
 function populateTemplateDropdown() {
-    const templateSelectContainer = document.getElementById("template-select-container");
     const templateSelect = document.getElementById("template-select");
-
     templateSelect.innerHTML = ''; // Clear existing options
 
     // Get the selected grid size
     const gridSizeSelect = document.getElementById('grid-size-select');
     const selectedGridSize = gridSizeSelect.value;
 
-    // Use the template data based on the selected grid size
-    const templates = gridTemplates[selectedGridSize];
-
-    if (templates) {
-        templates.forEach((template, index) => {
+    // Add templates if they exist for this grid size
+    if (gridTemplates && gridTemplates[selectedGridSize]) {
+        gridTemplates[selectedGridSize].forEach((template) => {
             const option = document.createElement('option');
-            option.value = `template${index + 1}`;
-            option.textContent = `${template.label}`;
+            option.value = template.value;
+            option.textContent = template.label;
             templateSelect.appendChild(option);
         });
-    } else {
-        // Handle the case when templates are not available for the selected grid size
-        const option = document.createElement('option');
-        option.textContent = 'No templates available';
-        templateSelect.appendChild(option);
     }
-
-    loadTemplate(); // Load the default template
 }
 
 // Event Listeners
@@ -576,11 +631,21 @@ function initializeGrid() {
         const selectedGridSize = gridSizeSelect.value;
         changeGridSize(selectedGridSize);
         populateTemplateDropdown(); // Populate the template dropdown based on the new grid size
+        updatePixelSizeDisplay(selectedGridSize); // Update the pixel size display
     });
 
     // Initialize the grid size based on the default selection
     changeGridSize(config.unicornGridSizes[config.defaultUnicornGrid]);
     parseGridSize(config.unicornGridSizes[config.defaultUnicornGrid]);
+    // Initialize pixel size display
+    updatePixelSizeDisplay(config.unicornGridSizes[config.defaultUnicornGrid]);
+}
+
+// Function to update the pixel size display
+function updatePixelSizeDisplay(size) {
+    const [width, height] = size.split(',');
+    const pixelSizeSpan = document.getElementById('pixel-size');
+    pixelSizeSpan.textContent = `${width} x ${height}`;
 }
 
 // Function to show/hide the "Select All" and "Copy to Clipboard" buttons
@@ -602,16 +667,20 @@ function toggleExportButtons(display) {
 
 // Load templates from an external JSON file
 function loadTemplatesFromJSON() {
-    const xmlRequest = new XMLHttpRequest();
-    xmlRequest.overrideMimeType("application/json");
-    xmlRequest.open("GET", "images.json", true);
-    xmlRequest.onreadystatechange = function () {
-        if (xmlRequest.readyState === 4 && xmlRequest.status === 200) {
-            const jsonContent = JSON.parse(xmlRequest.responseText);
-            handleTemplates(jsonContent);
-        }
-    };
-    xmlRequest.send(null);
+    fetch('images.json')
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load images.json');
+            return response.json();
+        })
+        .then(data => {
+            gridTemplates = data;
+            populateTemplateDropdown();
+        })
+        .catch(err => {
+            console.warn('Note: images.json not loaded:', err.message);
+            // Continue without templates
+            populateTemplateDropdown();
+        });
 }
 
 // Handle the loaded templates
@@ -621,8 +690,9 @@ function handleTemplates(templates) {
     loadTemplate(); // Load the default template
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    loadTemplatesFromJSON(); // Load templates when the DOM is ready
+// Initialize image analysis functionality
+document.addEventListener("DOMContentLoaded", function() {
+    loadTemplatesFromJSON(); // Keep template loading
     populateGridSizeDropdown();
     createPalette();
     initializeGrid();
@@ -632,6 +702,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add event listener for JSON file input
     const jsonFileInput = document.getElementById('json-file-input');
     jsonFileInput.addEventListener('change', handleJSONFileLoad);
+
+    // Initialize image file input handler
+    handleImageFileSelect();
 
     // Apply the default grid size to the select menu on initial load
     const gridSizeSelect = document.getElementById('grid-size-select');
@@ -690,11 +763,6 @@ function handleJSONFileLoad(event) {
                 return;
             }
 
-            // Convert RGB palette to hex colors
-            paletteColors = jsonData.palette.map(color => 
-                rgbToHex(color.r, color.g, color.b)
-            );
-
             // Update the grid size based on the loaded data
             const newWidth = jsonData.grid[0].length;
             const newHeight = jsonData.grid.length;
@@ -719,10 +787,14 @@ function handleJSONFileLoad(event) {
             gridSizeSelect.value = config.unicornGridSizes[matchingSize];
             
             // Update the grid size
-            changeGridSize(config.unicornGridSizes[matchingSize]);
+            gridSize = parseGridSize(config.unicornGridSizes[matchingSize]);
 
-            // Create new color mapping
+            // Load the palette directly from JSON without optimization
+            paletteColors = jsonData.palette.map(color => rgbToHex(color.r, color.g, color.b));
             createPalette();
+
+            // Create new grid with the correct dimensions
+            grid = createEmptyGrid(gridSize.width, gridSize.height, config.canvasFillColor);
 
             // Update the grid with the loaded data
             for (let y = 0; y < gridSize.height; y++) {
@@ -730,6 +802,29 @@ function handleJSONFileLoad(event) {
                     const colorIndex = jsonData.grid[y][x];
                     grid[x][y] = paletteColors[colorIndex];
                 }
+            }
+
+            // Reset template selection to "none"
+            const templateSelect = document.getElementById('template-select');
+            if (templateSelect) {
+                const noneOption = templateSelect.querySelector('option[value="none"]');
+                if (noneOption) {
+                    templateSelect.value = 'none';
+                }
+            }
+
+            // Clear any image preview
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            if (imagePreviewContainer && imagePreview) {
+                imagePreview.innerHTML = '';
+                imagePreviewContainer.style.display = 'none';
+            }
+
+            // Reset the image file input
+            const imageFileInput = document.getElementById('image-file-input');
+            if (imageFileInput) {
+                imageFileInput.value = '';
             }
 
             // Redraw the grid
@@ -859,4 +954,231 @@ function loadExampleJson() {
         .catch(err => {
             alert('Error loading example.json: ' + err.message);
         });
+}
+
+// Image Analysis Functions
+function analyzeAndProcessImage(img, file, canvas, ctx) {
+    try {
+        // Get dimensions from canvas
+        const targetWidth = canvas.width;
+        const targetHeight = canvas.height;
+
+        // Analyze the image
+        const imageData = ctx.getImageData(0, 0, targetWidth, targetHeight).data;
+        
+        // First pass: collect all unique colors
+        const uniqueColors = new Map();
+        for (let y = 0; y < targetHeight; y++) {
+            for (let x = 0; x < targetWidth; x++) {
+                const i = (y * targetWidth + x) * 4;
+                const color = {
+                    r: imageData[i],
+                    g: imageData[i + 1],
+                    b: imageData[i + 2]
+                };
+                const colorKey = `${color.r},${color.g},${color.b}`;
+                uniqueColors.set(colorKey, color);
+            }
+        }
+
+        // Get initial threshold based on number of unique colors
+        let threshold = getColorSimilarityThreshold(uniqueColors.size);
+        console.log(`Initial unique colors: ${uniqueColors.size}, using threshold: ${threshold}`);
+
+        // Build optimized palette
+        const optimizedPalette = [];
+        const colorMapping = new Map(); // Maps original color keys to optimized indices
+
+        // Process each unique color
+        for (const [colorKey, color] of uniqueColors) {
+            // Check if we have a similar color already
+            const similarIndex = findSimilarColor(color, optimizedPalette, threshold);
+            if (similarIndex !== -1) {
+                // Use existing similar color
+                colorMapping.set(colorKey, similarIndex);
+            } else {
+                // Add new color to palette
+                colorMapping.set(colorKey, optimizedPalette.length);
+                optimizedPalette.push(color);
+
+                // Adjust threshold if palette is growing too large
+                if (optimizedPalette.length > 32 && threshold < 25) {
+                    threshold = Math.min(25, threshold * 1.5);
+                    console.log(`Adjusting threshold to ${threshold} after ${optimizedPalette.length} colors`);
+                }
+            }
+        }
+
+        console.log(`Optimized palette from ${uniqueColors.size} to ${optimizedPalette.length} colors`);
+
+        // Build pixel grid using optimized palette
+        const pixelGrid = [];
+        for (let y = 0; y < targetHeight; y++) {
+            const row = [];
+            for (let x = 0; x < targetWidth; x++) {
+                const i = (y * targetWidth + x) * 4;
+                const colorKey = `${imageData[i]},${imageData[i + 1]},${imageData[i + 2]}`;
+                const colorIndex = colorMapping.get(colorKey);
+                row.push(colorIndex);
+            }
+            pixelGrid.push(row);
+        }
+
+        // Update the palette with the optimized colors
+        paletteColors = optimizedPalette.map(color => rgbToHex(color.r, color.g, color.b));
+        createPalette();
+
+        // Update the grid with the new data
+        for (let y = 0; y < gridSize.height; y++) {
+            for (let x = 0; x < gridSize.width; x++) {
+                const colorIndex = pixelGrid[y][x];
+                grid[x][y] = paletteColors[colorIndex];
+            }
+        }
+
+        // Redraw the grid
+        drawGrid();
+
+        // Create the output data structure and display it
+        const outputData = {
+            grid: pixelGrid,
+            palette: optimizedPalette
+        };
+
+        // Format and display the output
+        const formatted = formatPythonCode(outputData);
+        const exportTextBox = document.getElementById("export-text-box");
+        exportTextBox.textContent = formatted;
+        exportTextBox.style.display = 'block';
+        toggleExportButtons(true);
+
+        // Reset template selection to "none"
+        const templateSelect = document.getElementById('template-select');
+        if (templateSelect) {
+            const noneOption = templateSelect.querySelector('option[value="none"]');
+            if (noneOption) {
+                templateSelect.value = 'none';
+            }
+        }
+
+    } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Error processing image: ' + error.message);
+    }
+}
+
+function handleImageFileSelect() {
+    const fileInput = document.getElementById('image-file-input');
+    const previewContainer = document.getElementById('image-preview-container');
+    const previewDiv = document.getElementById('image-preview');
+
+    fileInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        
+        img.onload = function() {
+            // Get current grid size
+            const [targetWidth, targetHeight] = document.getElementById('grid-size-select').value.split(',').map(Number);
+            
+            // Check if image dimensions match the grid size
+            if (img.width !== targetWidth || img.height !== targetHeight) {
+                alert(`Image must be exactly ${targetWidth} x ${targetHeight} pixels. Your image is ${img.width} x ${img.height} pixels.`);
+                return;
+            }
+
+            // Clear previous preview
+            previewDiv.innerHTML = '';
+            
+            // Create a canvas to display the preview
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size to match target dimensions
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            // Draw image scaled to fit canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            // Style the preview canvas
+            canvas.style.width = '200px';
+            canvas.style.imageRendering = 'pixelated';
+            canvas.style.border = '1px solid #ccc';
+            
+            previewDiv.appendChild(canvas);
+            previewContainer.style.display = 'block';
+
+            // Immediately analyze and process the image
+            analyzeAndProcessImage(img, file, canvas, ctx);
+        };
+    });
+}
+
+function analyzeImage() {
+    const ctx = window.imageAnalysisCtx;
+    if (!ctx) return;
+
+    const [width, height] = document.getElementById('grid-size-select').value.split(',').map(Number);
+    const imageData = ctx.getImageData(0, 0, width, height).data;
+    
+    // Create color map and palette
+    const colorMap = new Map();
+    const palette = [];
+    const grid = [];
+
+    // Process image data
+    for (let y = 0; y < height; y++) {
+        const row = [];
+        for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * 4;
+            const color = {
+                r: imageData[i],
+                g: imageData[i + 1],
+                b: imageData[i + 2]
+            };
+            
+            // Get or create color index
+            const colorKey = `${color.r},${color.g},${color.b}`;
+            let colorIndex = colorMap.get(colorKey);
+            if (colorIndex === undefined) {
+                colorIndex = palette.length;
+                colorMap.set(colorKey, colorIndex);
+                palette.push(color);
+            }
+            row.push(colorIndex);
+        }
+        grid.push(row);
+    }
+
+    // Create the output data structure
+    const outputData = {
+        value: "image-import",
+        label: "Imported Image",
+        grid: grid,
+        palette: palette
+    };
+
+    // Format and display the output
+    const formatted = formatPythonCode(outputData);
+    const exportTextBox = document.getElementById("export-text-box");
+    exportTextBox.textContent = formatted;
+    exportTextBox.style.display = 'block';
+    toggleExportButtons(true);
+
+    // Update the palette with the new colors
+    paletteColors = palette.map(color => rgbToHex(color.r, color.g, color.b));
+    createPalette();
+
+    // Update the grid with the new data
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const colorIndex = grid[y][x];
+            const color = paletteColors[colorIndex];
+            window.grid[x][y] = color;
+        }
+    }
+    drawGrid();
 }

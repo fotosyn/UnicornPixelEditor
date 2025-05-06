@@ -13,7 +13,7 @@
         
         <div class="mt-4">
             <p>Unicorn Pixel Art Editor is a tool for generating and exporting pixel art maps and palettes for <a href="https://shop.pimoroni.com/products/space-unicorns">Pimoroni Unicorn LED panels</a>.</p>
-            <p>Visit the <a href="https://github.com/fotosyn/UnicornPixelEditor">Github pages</a> to get started / Convert existing images using the <a href="https://fotosyn.github.io/UnicornPixelEditor/image-analyser">image analyser</a>.</p>
+            <p>Visit the <a href="https://github.com/fotosyn/UnicornPixelEditor">Github pages</a> to get started.</p>
         </div>
 
         <div id="grid-size-select-container" class="controls mt-4">
@@ -24,6 +24,15 @@
         <div id="template-select-container" class="mt-4">
             <label for="template-select">Template:</label>
             <select id="template-select" class="form-control"></select>
+        </div>
+
+        <div id="image-analyzer-container" class="mt-4">
+            <label>Create from an image:</label><br />
+            <input type="file" id="image-file-input" class="form-control" accept="image/*" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('image-file-input').click()">Load an image (<span id="pixel-size">16 x 16</span> pixels)</button>
+            <div id="image-preview-container" class="mt-2" style="display: none;">
+                <div id="image-preview"></div>
+            </div>
         </div>
 
         <div id="load-data-container" class="mt-4">
