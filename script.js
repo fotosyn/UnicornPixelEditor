@@ -985,16 +985,85 @@ function toggleExportButtons(display) {
     const selectButton = document.getElementById('select-all-button');
     const copyButton = document.getElementById('copy-clipboard-button');
     const fullCodeButton = document.getElementById('show-full-code-button');
+    const exportPngButton = document.getElementById('export-png-button');
     
     if (display) {
         selectButton.style.display = 'inline-block';
         copyButton.style.display = 'inline-block';
         fullCodeButton.style.display = 'inline-block';
+        exportPngButton.style.display = 'inline-block';
     } else {
         selectButton.style.display = 'none';
         copyButton.style.display = 'none';
         fullCodeButton.style.display = 'none';
+        exportPngButton.style.display = 'none';
     }
+}
+
+// Function to export the current pixel art as a PNG file
+function exportAsPng() {
+    // Create a temporary canvas with the exact pixel dimensions
+    // We'll make it larger for better quality
+    const pixelSize = 10; // Each pixel will be 10x10 in the exported image
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = gridSize.width * pixelSize;
+    tempCanvas.height = gridSize.height * pixelSize;
+    const ctx = tempCanvas.getContext('2d');
+    
+    // Optional: Add a background if desired
+    ctx.fillStyle = '#ffffff'; // White background
+    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+    // Draw each pixel at the scaled size
+    for (let x = 0; x < gridSize.width; x++) {
+        for (let y = 0; y < gridSize.height; y++) {
+            ctx.fillStyle = grid[x][y] || config.canvasFillColor;
+            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+        }
+    }
+    
+    // Optional: Draw grid lines for clarity
+    const drawGridLines = false; // Set to true if you want grid lines
+    if (drawGridLines) {
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)'; // Light gray, semi-transparent
+        ctx.lineWidth = 0.5;
+        
+        // Draw vertical lines
+        for (let x = 0; x <= gridSize.width; x++) {
+            ctx.beginPath();
+            ctx.moveTo(x * pixelSize, 0);
+            ctx.lineTo(x * pixelSize, tempCanvas.height);
+            ctx.stroke();
+        }
+        
+        // Draw horizontal lines
+        for (let y = 0; y <= gridSize.height; y++) {
+            ctx.beginPath();
+            ctx.moveTo(0, y * pixelSize);
+            ctx.lineTo(tempCanvas.width, y * pixelSize);
+            ctx.stroke();
+        }
+    }
+    
+    // Convert canvas to PNG data URL with maximum quality
+    const pngDataUrl = tempCanvas.toDataURL('image/png', 1.0);
+    
+    // Create a download link
+    const downloadLink = document.createElement('a');
+    
+    // Generate a filename based on the current date/time
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // Set the filename and download properties
+    const gridName = document.getElementById('grid-size-select').options[document.getElementById('grid-size-select').selectedIndex].text.toLowerCase().replace(/\s+/g, '-');
+    downloadLink.download = `unicorn-pixel-art-${gridName}-${timestamp}.png`;
+    downloadLink.href = pngDataUrl;
+    
+    // Trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
 }
 
 // Load templates from an external JSON file
@@ -1077,6 +1146,12 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Set default tool
     selectTool('draw');
+
+    // Add "Export as PNG" button functionality
+    const exportPngButton = document.getElementById('export-png-button');
+    if (exportPngButton) {
+        exportPngButton.addEventListener('click', exportAsPng);
+    }
 });
 
 // Function to get the full Python code
@@ -1994,6 +2069,7 @@ const translations = {
     showFullPythonCode: 'Show Full Python Code',
     selectAll: 'Select All',
     copy: 'Copy',
+    exportAsPng: 'Export as PNG',
     github: 'GitHub',
     exampleJsonFormat: 'Example JSON Format',
     close: 'Close',
@@ -2030,6 +2106,7 @@ const translations = {
     showFullPythonCode: 'Show Full Python Code',
     selectAll: 'Select All',
     copy: 'Copy',
+    exportAsPng: 'Export as PNG',
     github: 'GitHub',
     exampleJsonFormat: 'Example JSON Format',
     close: 'Close',
