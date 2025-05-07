@@ -239,7 +239,7 @@ function createPalette() {
     // Select the first color by default
     const defaultSelectedSwatch = document.querySelector('.swatch:first-child');
     if (defaultSelectedSwatch) {
-        highlightSelectedSwatch(defaultSelectedSwatch);
+    highlightSelectedSwatch(defaultSelectedSwatch);
         selectedColor = paletteColors[0];
     }
 }
@@ -324,8 +324,8 @@ function editPalette() {
         updateGridColors(originalPalette);
         
         // Update the main palette display
-        createPalette();
-        
+            createPalette();
+
         // Redraw the grid with updated colors
         drawGrid();
         
@@ -345,14 +345,14 @@ function updateGridColors(originalPalette) {
     });
 
     // Update the grid with new colors
-    for (let x = 0; x < gridSize.width; x++) {
-        for (let y = 0; y < gridSize.height; y++) {
-            const currentColor = grid[x][y];
-            if (colorMapping.hasOwnProperty(currentColor)) {
-                grid[x][y] = colorMapping[currentColor];
+            for (let x = 0; x < gridSize.width; x++) {
+                for (let y = 0; y < gridSize.height; y++) {
+                    const currentColor = grid[x][y];
+                    if (colorMapping.hasOwnProperty(currentColor)) {
+                        grid[x][y] = colorMapping[currentColor];
+                    }
+                }
             }
-        }
-    }
 
     // Update selected color if it was changed
     if (colorMapping.hasOwnProperty(selectedColor)) {
@@ -780,18 +780,18 @@ function populateTemplateDropdown() {
 // Event Listeners
 // Enable drawing while dragging with the mouse
 let isDrawing = false;
+let drawStartPosition = null;
+let previewGrid = null; // Store the preview version of the grid
 
 // Get grid position from mouse event
 function getGridPositionFromEvent(e) {
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
     
-    // Get mouse position relative to canvas
+    // Get mouse position relative to canvas with higher precision
     const mouseX = (e.clientX - rect.left);
     const mouseY = (e.clientY - rect.top);
     
-    // Convert to canvas coordinates
+    // Convert to canvas coordinates with higher precision
     const canvasX = mouseX * (canvas.width / rect.width);
     const canvasY = mouseY * (canvas.height / rect.height);
     
@@ -799,7 +799,13 @@ function getGridPositionFromEvent(e) {
     const x = Math.floor(canvasX / (canvas.width / gridSize.width));
     const y = Math.floor(canvasY / (canvas.height / gridSize.height));
     
-    return { x, y };
+    return { 
+        x, 
+        y,
+        // Add exact position within the grid for higher precision
+        exactX: canvasX / (canvas.width / gridSize.width),
+        exactY: canvasY / (canvas.height / gridSize.height)
+    };
 }
 
 const canvas = document.getElementById('pixel-canvas');
@@ -808,6 +814,7 @@ canvas.addEventListener('mousedown', function (e) {
     
     isDrawing = true;
     const pos = getGridPositionFromEvent(e);
+    previewLastPos = null; // Reset last position
     
     // Different behavior based on selected tool
     switch (currentTool) {
@@ -824,6 +831,8 @@ canvas.addEventListener('mousedown', function (e) {
         case 'square':
         case 'circle':
             drawStartPosition = pos;
+            // Create a copy of the current grid for preview
+            previewGrid = JSON.parse(JSON.stringify(grid));
             break;
     }
 });
@@ -831,13 +840,42 @@ canvas.addEventListener('mousedown', function (e) {
 canvas.addEventListener('mousemove', function (e) {
     if (!isDrawing) return;
     
+    const currentPos = getGridPositionFromEvent(e);
+    
     switch (currentTool) {
         case 'draw':
             fillPixelFromEvent(e);
             break;
         case 'square':
         case 'circle':
-            // Just for preview - will implement later if needed
+            if (drawStartPosition) {
+                // Always redraw on movement for better responsiveness
+                // Create a fresh copy of the original grid
+                previewGrid = JSON.parse(JSON.stringify(grid));
+                
+                // Draw the preview shape on the preview grid
+                if (currentTool === 'square') {
+                    drawRectOnGrid(previewGrid, 
+                        drawStartPosition.x, 
+                        drawStartPosition.y, 
+                        currentPos.x, 
+                        currentPos.y, 
+                        selectedColor, 
+                        false);
+                } else if (currentTool === 'circle') {
+                    drawShapeOnGrid(previewGrid, 
+                        drawStartPosition.x, 
+                        drawStartPosition.y, 
+                        currentPos.x, 
+                        currentPos.y, 
+                        selectedColor,
+                        false);
+                }
+                
+                // Draw the preview
+                drawGridWithPreview(previewGrid);
+                previewLastPos = { x: currentPos.x, y: currentPos.y };
+            }
             break;
     }
 });
@@ -851,25 +889,34 @@ canvas.addEventListener('mouseup', function (e) {
         switch (currentTool) {
             case 'square':
                 if (drawStartPosition) {
-                    drawSquare(drawStartPosition.x, drawStartPosition.y, endPos.x, endPos.y, selectedColor);
+                    drawRectOnGrid(grid, drawStartPosition.x, drawStartPosition.y, endPos.x, endPos.y, selectedColor, false);
                     drawGrid();
                 }
                 break;
             case 'circle':
                 if (drawStartPosition) {
-                    drawCircle(drawStartPosition.x, drawStartPosition.y, endPos.x, endPos.y, selectedColor);
+                    drawShapeOnGrid(grid, drawStartPosition.x, drawStartPosition.y, endPos.x, endPos.y, selectedColor, false);
                     drawGrid();
                 }
                 break;
         }
         
         drawStartPosition = null;
+        previewGrid = null;
+        previewLastPos = null;
         isDrawing = false;
     }
 });
 
 canvas.addEventListener('mouseleave', function () {
+    if (isDrawing && (currentTool === 'square' || currentTool === 'circle')) {
+        // If mouse leaves canvas while drawing a shape, revert to original grid
+        drawGrid();
+    }
     isDrawing = false;
+    drawStartPosition = null;
+    previewGrid = null;
+    previewLastPos = null;
 });
 
 function fillPixelFromEvent(e) {
@@ -882,8 +929,8 @@ function fillPixelFromEvent(e) {
     
     // Check if the coordinates are within bounds
     if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
-        grid[x][y] = selectedColor;
-        drawGrid();
+    grid[x][y] = selectedColor;
+    drawGrid();
     }
 }
 
@@ -992,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", function() {
     createPalette();
     drawGrid();
     toggleExportButtons(false);
-    
+
     // Initialize template dropdown
     populateTemplateDropdown();
     const templateSelect = document.getElementById('template-select');
@@ -1554,7 +1601,7 @@ if (typeof handleImageFileSelect !== 'function') {
 
 // Initialize drawing tool variables
 let currentTool = 'draw'; // Default tool is draw (pencil)
-let drawStartPosition = null; // For shape tools - starting position
+let previewLastPos = null; // Last position for preview optimization
 
 // Tool functions
 function selectTool(toolName) {
@@ -1645,6 +1692,20 @@ function floodFill(x, y, targetColor, replacementColor) {
 
 // Draw a square
 function drawSquare(startX, startY, endX, endY, color) {
+    // Ensure we use the original grid
+    const targetGrid = grid;
+    drawRectOnGrid(targetGrid, startX, startY, endX, endY, color, false);
+}
+
+// Draw a circle or oval
+function drawCircle(startX, startY, endX, endY, color) {
+    // Ensure we use the original grid
+    const targetGrid = grid;
+    drawShapeOnGrid(targetGrid, startX, startY, endX, endY, color, false);
+}
+
+// Common function to draw rectangles or squares on any grid
+function drawRectOnGrid(targetGrid, startX, startY, endX, endY, color, filled = false) {
     // Ensure startX <= endX and startY <= endY
     if (startX > endX) [startX, endX] = [endX, startX];
     if (startY > endY) [startY, endY] = [endY, startY];
@@ -1657,19 +1718,28 @@ function drawSquare(startX, startY, endX, endY, color) {
     
     // Draw top and bottom lines
     for (let x = startX; x <= endX; x++) {
-        grid[x][startY] = color;
-        grid[x][endY] = color;
+        targetGrid[x][startY] = color;
+        targetGrid[x][endY] = color;
     }
     
     // Draw left and right lines
     for (let y = startY + 1; y < endY; y++) {
-        grid[startX][y] = color;
-        grid[endX][y] = color;
+        targetGrid[startX][y] = color;
+        targetGrid[endX][y] = color;
+    }
+    
+    // If filled, fill the inside
+    if (filled) {
+        for (let x = startX + 1; x < endX; x++) {
+            for (let y = startY + 1; y < endY; y++) {
+                targetGrid[x][y] = color;
+            }
+        }
     }
 }
 
-// Draw a circle or oval
-function drawCircle(startX, startY, endX, endY, color) {
+// Common function to draw circles or ovals on any grid
+function drawShapeOnGrid(targetGrid, startX, startY, endX, endY, color, filled = false) {
     // Ensure startX <= endX and startY <= endY
     if (startX > endX) [startX, endX] = [endX, startX];
     if (startY > endY) [startY, endY] = [endY, startY];
@@ -1680,120 +1750,172 @@ function drawCircle(startX, startY, endX, endY, color) {
     endX = Math.max(0, Math.min(endX, gridSize.width - 1));
     endY = Math.max(0, Math.min(endY, gridSize.height - 1));
     
-    // Calculate center and radii
-    const centerX = Math.floor((startX + endX) / 2);
-    const centerY = Math.floor((startY + endY) / 2);
+    // Calculate center point exactly between pixels for symmetry
+    const centerX = startX + (endX - startX) / 2;
+    const centerY = startY + (endY - startY) / 2;
     
-    // Calculate both x and y radii for oval support
-    const radiusX = Math.max(1, Math.floor((endX - startX) / 2));
-    const radiusY = Math.max(1, Math.floor((endY - startY) / 2));
+    // Calculate exact radius to match rectangle boundaries
+    const radiusX = (endX - startX) / 2 + 0.5;
+    const radiusY = (endY - startY) / 2 + 0.5;
     
     // Implementation of midpoint ellipse algorithm
-    // This is a modified version of Bresenham's algorithm that supports ovals
-    drawEllipse(centerX, centerY, radiusX, radiusY, color);
+    if (filled) {
+        drawFilledEllipseOnGrid(targetGrid, centerX, centerY, radiusX, radiusY, color);
+    } else {
+        drawEllipseOnGrid(targetGrid, centerX, centerY, radiusX, radiusY, color);
+    }
 }
 
-// Helper function to draw an ellipse using midpoint algorithm
-function drawEllipse(centerX, centerY, radiusX, radiusY, color) {
+// Function to draw grid with preview - ensure it's available for both circles and squares
+function drawGridWithPreview(previewGrid) {
+    const canvas = document.getElementById('pixel-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const cellWidth = canvas.width / gridSize.width;
+    const cellHeight = canvas.height / gridSize.height;
+    
+    for (let x = 0; x < gridSize.width; x++) {
+        for (let y = 0; y < gridSize.height; y++) {
+            const xPos = x * cellWidth;
+            const yPos = y * cellHeight;
+            
+            ctx.fillStyle = previewGrid[x][y] || config.canvasFillColor;
+            ctx.fillRect(xPos, yPos, cellWidth, cellHeight);
+            
+            ctx.strokeStyle = config.canvasStrokeStyle;
+            ctx.strokeRect(xPos, yPos, cellWidth, cellHeight);
+        }
+    }
+}
+
+// Helper function to draw an ellipse on specified grid using midpoint algorithm
+function drawEllipseOnGrid(targetGrid, centerX, centerY, radiusX, radiusY, color) {
+    // Convert to integers for pixel plotting with size correction
+    const cX = Math.round(centerX);
+    const cY = Math.round(centerY);
+    
     // Special case: if radiusX equals radiusY, we can use a simpler circle algorithm
-    if (radiusX === radiusY) {
-        return drawPerfectCircle(centerX, centerY, radiusX, color);
+    if (Math.abs(radiusX - radiusY) < 0.5) {
+        return drawPerfectCircleOnGrid(targetGrid, cX, cY, radiusX - 0.5, color);
     }
     
     // Handle oval of width 1 or height 1 as a special case
-    if (radiusX === 0 || radiusY === 0) {
+    if (radiusX < 0.5 || radiusY < 0.5) {
         // Draw a line instead
-        if (radiusX === 0) {
-            for (let y = centerY - radiusY; y <= centerY + radiusY; y++) {
-                setPixelSafe(centerX, y, color);
+        if (radiusX < 0.5) {
+            for (let y = Math.round(cY - radiusY + 0.5); y <= Math.round(cY + radiusY - 0.5); y++) {
+                setPixelSafeOnGrid(targetGrid, cX, y, color);
             }
         } else {
-            for (let x = centerX - radiusX; x <= centerX + radiusX; x++) {
-                setPixelSafe(x, centerY, color);
+            for (let x = Math.round(cX - radiusX + 0.5); x <= Math.round(cX + radiusX - 0.5); x++) {
+                setPixelSafeOnGrid(targetGrid, x, cY, color);
             }
         }
         return;
     }
     
+    // Use adjusted radii to match the grid boundaries exactly
+    const rX = radiusX - 0.5;
+    const rY = radiusY - 0.5;
+    
     // Midpoint ellipse algorithm
     let x = 0;
-    let y = radiusY;
+    let y = Math.floor(rY);
     
     // Initial decision parameter for region 1
-    let d1 = (radiusY * radiusY) - (radiusX * radiusX * radiusY) + (0.25 * radiusX * radiusX);
-    let dx = 2 * radiusY * radiusY * x;
-    let dy = 2 * radiusX * radiusX * y;
+    let d1 = (rY * rY) - (rX * rX * rY) + (0.25 * rX * rX);
+    let dx = 2 * rY * rY * x;
+    let dy = 2 * rX * rX * y;
     
     // Region 1
     while (dx < dy) {
         // Plot four points for each quadrant
-        setPixelSafe(centerX + x, centerY + y, color);
-        setPixelSafe(centerX - x, centerY + y, color);
-        setPixelSafe(centerX + x, centerY - y, color);
-        setPixelSafe(centerX - x, centerY - y, color);
+        setPixelSafeOnGrid(targetGrid, cX + x, cY + y, color);
+        setPixelSafeOnGrid(targetGrid, cX - x, cY + y, color);
+        setPixelSafeOnGrid(targetGrid, cX + x, cY - y, color);
+        setPixelSafeOnGrid(targetGrid, cX - x, cY - y, color);
         
         // Increment x
         x++;
-        dx += 2 * radiusY * radiusY;
+        dx += 2 * rY * rY;
         
         // Check if decision parameter should be updated
         if (d1 < 0) {
-            d1 += dx + (radiusY * radiusY);
+            d1 += dx + (rY * rY);
         } else {
             y--;
-            dy -= 2 * radiusX * radiusX;
-            d1 += dx - dy + (radiusY * radiusY);
+            dy -= 2 * rX * rX;
+            d1 += dx - dy + (rY * rY);
         }
     }
     
     // Decision parameter for region 2
-    let d2 = ((radiusY * radiusY) * ((x + 0.5) * (x + 0.5))) + 
-             ((radiusX * radiusX) * ((y - 1) * (y - 1))) - 
-             (radiusX * radiusX * radiusY * radiusY);
+    let d2 = ((rY * rY) * ((x + 0.5) * (x + 0.5))) + 
+              ((rX * rX) * ((y - 1) * (y - 1))) - 
+              (rX * rX * rY * rY);
     
     // Region 2
     while (y >= 0) {
         // Plot four points for each quadrant
-        setPixelSafe(centerX + x, centerY + y, color);
-        setPixelSafe(centerX - x, centerY + y, color);
-        setPixelSafe(centerX + x, centerY - y, color);
-        setPixelSafe(centerX - x, centerY - y, color);
+        setPixelSafeOnGrid(targetGrid, cX + x, cY + y, color);
+        setPixelSafeOnGrid(targetGrid, cX - x, cY + y, color);
+        setPixelSafeOnGrid(targetGrid, cX + x, cY - y, color);
+        setPixelSafeOnGrid(targetGrid, cX - x, cY - y, color);
         
         // Decrement y
         y--;
-        dy -= 2 * radiusX * radiusX;
+        dy -= 2 * rX * rX;
         
         // Check if decision parameter should be updated
         if (d2 > 0) {
-            d2 += (radiusX * radiusX) - dy;
+            d2 += (rX * rX) - dy;
         } else {
             x++;
-            dx += 2 * radiusY * radiusY;
-            d2 += dx - dy + (radiusX * radiusX);
+            dx += 2 * rY * rY;
+            d2 += dx - dy + (rX * rX);
         }
     }
 }
 
-// Helper for drawing a perfect circle using Bresenham's algorithm (faster than ellipse for this case)
-function drawPerfectCircle(centerX, centerY, radius, color) {
-    let x = 0;
-    let y = radius;
-    let d = 3 - 2 * radius;
+// Helper for drawing a perfect circle on specified grid using Bresenham's algorithm
+function drawPerfectCircleOnGrid(targetGrid, centerX, centerY, radius, color) {
+    // Convert to integers for pixel coordinates with size correction
+    const cX = Math.round(centerX);
+    const cY = Math.round(centerY);
     
+    // Use floor instead of round to slightly reduce the circle size
+    const r = Math.floor(radius);
+    
+    if (r < 1) {
+        // For very small circles, just draw a single pixel
+        setPixelSafeOnGrid(targetGrid, cX, cY, color);
+        return;
+    }
+    
+    let x = 0;
+    let y = r;
+    let d = 3 - 2 * r;
+    
+    // Function to draw pixels in all octants
     const drawCirclePixels = (cx, cy, x, y) => {
         // Draw 8 octants
-        setPixelSafe(cx + x, cy + y, color);
-        setPixelSafe(cx - x, cy + y, color);
-        setPixelSafe(cx + x, cy - y, color);
-        setPixelSafe(cx - x, cy - y, color);
-        setPixelSafe(cx + y, cy + x, color);
-        setPixelSafe(cx - y, cy + x, color);
-        setPixelSafe(cx + y, cy - x, color);
-        setPixelSafe(cx - y, cy - x, color);
+        setPixelSafeOnGrid(targetGrid, cx + x, cy + y, color);
+        setPixelSafeOnGrid(targetGrid, cx - x, cy + y, color);
+        setPixelSafeOnGrid(targetGrid, cx + x, cy - y, color);
+        setPixelSafeOnGrid(targetGrid, cx - x, cy - y, color);
+        setPixelSafeOnGrid(targetGrid, cx + y, cy + x, color);
+        setPixelSafeOnGrid(targetGrid, cx - y, cy + x, color);
+        setPixelSafeOnGrid(targetGrid, cx + y, cy - x, color);
+        setPixelSafeOnGrid(targetGrid, cx - y, cy - x, color);
     };
     
     while (y >= x) {
-        drawCirclePixels(centerX, centerY, x, y);
+        drawCirclePixels(cX, cY, x, y);
         x++;
         if (d > 0) {
             y--;
@@ -1804,9 +1926,154 @@ function drawPerfectCircle(centerX, centerY, radius, color) {
     }
 }
 
-// Helper function to safely set a pixel if in bounds
-function setPixelSafe(x, y, color) {
-    if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
-        grid[x][y] = color;
+// Draw filled ellipse using scan line algorithm
+function drawFilledEllipseOnGrid(targetGrid, centerX, centerY, radiusX, radiusY, color) {
+    // Handle special cases for very small radii
+    if (radiusX < 1 && radiusY < 1) {
+        const x = Math.round(centerX);
+        const y = Math.round(centerY);
+        setPixelSafeOnGrid(targetGrid, x, y, color);
+        return;
+    }
+    
+    // Convert to integers for pixel coordinates with size correction
+    const cX = Math.round(centerX);
+    const cY = Math.round(centerY);
+    
+    // Use floor instead of round to slightly reduce the ellipse size
+    const rX = Math.floor(radiusX);
+    const rY = Math.floor(radiusY);
+    
+    // Use the standard ellipse equation: (x-h)²/a² + (y-k)²/b² = 1
+    // where (h,k) is the center, a is the x radius, and b is the y radius
+    
+    // For each y coordinate, find the x range that's inside the ellipse
+    for (let y = cY - rY; y <= cY + rY; y++) {
+        if (y < 0 || y >= gridSize.height) continue;
+        
+        // Calculate the width at this y-coordinate
+        // Derived from the ellipse equation solving for x
+        const dy = y - cY;
+        const term = 1 - (dy * dy) / (rY * rY);
+        
+        if (term < 0) continue; // No intersection with this horizontal line
+        
+        const dx = rX * Math.sqrt(term);
+        const xStart = Math.max(0, Math.floor(cX - dx));
+        const xEnd = Math.min(gridSize.width - 1, Math.ceil(cX + dx));
+        
+        // Fill the horizontal line
+        for (let x = xStart; x <= xEnd; x++) {
+            targetGrid[x][y] = color;
+        }
     }
 }
+
+// Helper function to safely set a pixel on specified grid if in bounds
+function setPixelSafeOnGrid(targetGrid, x, y, color) {
+    if (x >= 0 && x < gridSize.width && y >= 0 && y < gridSize.height) {
+        targetGrid[x][y] = color;
+    }
+}
+
+// --- Localisation Support ---
+const translations = {
+  'en-us': {
+    canvas: 'Canvas',
+    settings: 'Settings',
+    gridSize: 'Grid Size',
+    template: 'Template',
+    colorPalette: 'Color Palette',
+    edit: 'Edit',
+    import: 'Import',
+    export: 'Export',
+    createFromImage: 'Create from an image',
+    loadDataFile: 'Load data file',
+    showExample: 'Show Example',
+    generateImageData: 'Generate Image Data',
+    showFullPythonCode: 'Show Full Python Code',
+    selectAll: 'Select All',
+    copy: 'Copy',
+    github: 'GitHub',
+    exampleJsonFormat: 'Example JSON Format',
+    close: 'Close',
+    editColorPalette: 'Edit Color Palette',
+    selectedColor: 'Selected Color:',
+    hexColorPlaceholder: '#000000',
+    red: 'Red',
+    green: 'Green',
+    blue: 'Blue',
+    palette: 'Palette:',
+    cancel: 'Cancel',
+    saveChanges: 'Save Changes',
+    tools: 'Tools:',
+    shiftImage: 'Shift image:',
+    resetCanvas: 'Reset canvas:',
+    drawPixel: 'Draw Pixel',
+    floodFill: 'Flood Fill',
+    square: 'Square',
+    circle: 'Circle',
+  },
+  'en-gb': {
+    canvas: 'Canvas',
+    settings: 'Settings',
+    gridSize: 'Grid Size',
+    template: 'Template',
+    colorPalette: 'Colour Palette',
+    edit: 'Edit',
+    import: 'Import',
+    export: 'Export',
+    createFromImage: 'Create from an image',
+    loadDataFile: 'Load data file',
+    showExample: 'Show Example',
+    generateImageData: 'Generate Image Data',
+    showFullPythonCode: 'Show Full Python Code',
+    selectAll: 'Select All',
+    copy: 'Copy',
+    github: 'GitHub',
+    exampleJsonFormat: 'Example JSON Format',
+    close: 'Close',
+    editColorPalette: 'Edit Colour Palette',
+    selectedColor: 'Selected Colour:',
+    hexColorPlaceholder: '#000000',
+    red: 'Red',
+    green: 'Green',
+    blue: 'Blue',
+    palette: 'Palette:',
+    cancel: 'Cancel',
+    saveChanges: 'Save Changes',
+    tools: 'Tools:',
+    shiftImage: 'Shift image:',
+    resetCanvas: 'Reset canvas:',
+    drawPixel: 'Draw Pixel',
+    floodFill: 'Flood Fill',
+    square: 'Square',
+    circle: 'Circle',
+  }
+};
+
+function detectLanguage() {
+  const lang = navigator.language || navigator.userLanguage || 'en-US';
+  if (lang.toLowerCase().startsWith('en-gb')) return 'en-gb';
+  return 'en-us'; // default
+}
+let currentLang = detectLanguage();
+let t = translations[currentLang];
+
+function localisePage() {
+  // Text content
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  // Placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (t[key]) el.setAttribute('placeholder', t[key]);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  localisePage();
+  // ...rest of your DOMContentLoaded code...
+});

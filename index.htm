@@ -42,7 +42,7 @@
                 <div class="col-lg-8">
                     <div class="card editor-card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-pencil-ruler me-2"></i>Canvas</h5>
+                            <h5 class="mb-0"><i class="fas fa-pencil-ruler me-2"></i><span data-i18n="canvas"></span></h5>
                             <div class="pixel-size-display">
                                 <span id="pixel-size" class="badge bg-primary">16 x 16</span>
                             </div>
@@ -90,15 +90,15 @@
                 <div class="col-lg-4">
                     <div class="card controls-card mb-4">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Settings</h5>
+                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i><span data-i18n="settings"></span></h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="grid-size-select" class="form-label">Grid Size</label>
+                                <label for="grid-size-select" class="form-label"><span data-i18n="gridSize"></span></label>
                                 <select id="grid-size-select" class="form-select"></select>
                             </div>
                             <div class="mb-3">
-                                <label for="template-select" class="form-label">Template</label>
+                                <label for="template-select" class="form-label"><span data-i18n="template"></span></label>
                                 <select id="template-select" class="form-select"></select>
                             </div>
                         </div>
@@ -106,9 +106,9 @@
 
                     <div class="card palette-card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Color Palette</h5>
+                            <h5 class="mb-0"><i class="fas fa-palette me-2"></i><span data-i18n="colorPalette"></span></h5>
                             <button id="edit-palette-btn" class="btn btn-sm btn-outline-light" onclick="editPalette()">
-                                <i class="fas fa-edit me-1"></i>Edit
+                                <i class="fas fa-edit me-1"></i><span data-i18n="edit"></span>
                             </button>
                         </div>
                         <div class="card-body">
@@ -122,12 +122,12 @@
                 <div class="col-12">
                     <div class="card import-card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-file-import me-2"></i>Import</h5>
+                            <h5 class="mb-0"><i class="fas fa-file-import me-2"></i><span data-i18n="import"></span></h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="image-file-input" class="form-label">Create from an image</label>
+                                    <label for="image-file-input" class="form-label"><span data-i18n="createFromImage"></span></label>
                                     <div class="input-group">
                                         <input type="file" class="form-control" id="image-file-input" accept="image/*">
                                     </div>
@@ -136,11 +136,11 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="json-file-input" class="form-label">Load data file</label>
+                                    <label for="json-file-input" class="form-label"><span data-i18n="loadDataFile"></span></label>
                                     <div class="input-group">
                                         <input type="file" class="form-control" id="json-file-input" accept=".json">
                                         <button class="btn btn-outline-secondary" onclick="loadExampleJson()">
-                                            <i class="fas fa-info-circle me-1"></i>Show Example
+                                            <i class="fas fa-info-circle me-1"></i><span data-i18n="showExample"></span>
                                         </button>
                                     </div>
                                 </div>
@@ -154,19 +154,19 @@
                 <div class="col-12">
                     <div class="card export-card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-file-export me-2"></i>Export</h5>
+                            <h5 class="mb-0"><i class="fas fa-file-export me-2"></i><span data-i18n="export"></span></h5>
                             <div class="export-buttons">
                                 <button id="export-button" class="btn btn-sm btn-success" onclick="exportGrid()">
-                                    <i class="fas fa-file-export me-1"></i>Generate Image Data
+                                    <i class="fas fa-file-export me-1"></i><span data-i18n="generateImageData"></span>
                                 </button>
                                 <button id="show-full-code-button" class="btn btn-sm btn-success" onclick="showFullPythonCode()" style="display: none;">
-                                    <i class="fas fa-code me-1"></i>Show Full Python Code
+                                    <i class="fas fa-code me-1"></i><span data-i18n="showFullPythonCode"></span>
                                 </button>
                                 <button id="select-all-button" class="btn btn-sm btn-secondary" style="display: none;">
-                                    <i class="fas fa-object-group me-1"></i>Select All
+                                    <i class="fas fa-object-group me-1"></i><span data-i18n="selectAll"></span>
                                 </button>
                                 <button id="copy-clipboard-button" class="btn btn-sm btn-secondary" style="display: none;">
-                                    <i class="fas fa-copy me-1"></i>Copy
+                                    <i class="fas fa-copy me-1"></i><span data-i18n="copy"></span>
                                 </button>
                             </div>
                         </div>
@@ -180,7 +180,7 @@
             <footer class="mt-4 text-center">
                 <div class="footer-content">
                     <a href="https://github.com/fotosyn/UnicornPixelEditor" target="_blank" class="github-link">
-                        <i class="fab fa-github"></i> GitHub
+                        <i class="fab fa-github"></i> <span data-i18n="github"></span>
                     </a>
                     <div class="badges">
                         <a href="https://github.com/fotosyn/" target="_blank">
@@ -200,14 +200,14 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="jsonLightboxModalLabel">Example JSON Format</h5>
+                    <h5 class="modal-title" id="jsonLightboxModalLabel" data-i18n="exampleJsonFormat"></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <pre id="jsonLightboxContent" class="json-content"></pre>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close"></button>
                 </div>
             </div>
         </div>
@@ -218,44 +218,44 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="paletteEditorModalLabel">Edit Color Palette</h5>
+                    <h5 class="modal-title" id="paletteEditorModalLabel" data-i18n="editColorPalette"></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="current-color-preview mb-3">
-                        <label>Selected Color:</label>
+                        <label data-i18n="selectedColor"></label>
                         <div class="d-flex align-items-center gap-3">
                             <div id="currentColorPreview" class="color-preview"></div>
-                            <input type="text" id="hexColorInput" class="form-control" placeholder="#000000">
+                            <input type="text" id="hexColorInput" class="form-control" placeholder="#000000" data-i18n-placeholder="hexColorPlaceholder">
                         </div>
                     </div>
                     
                     <div class="rgb-sliders">
                         <div class="mb-3">
-                            <label for="redSlider" class="form-label">Red</label>
+                            <label for="redSlider" class="form-label" data-i18n="red"></label>
                             <input type="range" class="form-range" id="redSlider" min="0" max="255" value="0">
                             <input type="number" class="form-control form-control-sm" id="redInput" min="0" max="255" value="0">
                         </div>
                         <div class="mb-3">
-                            <label for="greenSlider" class="form-label">Green</label>
+                            <label for="greenSlider" class="form-label" data-i18n="green"></label>
                             <input type="range" class="form-range" id="greenSlider" min="0" max="255" value="0">
                             <input type="number" class="form-control form-control-sm" id="greenInput" min="0" max="255" value="0">
                         </div>
                         <div class="mb-3">
-                            <label for="blueSlider" class="form-label">Blue</label>
+                            <label for="blueSlider" class="form-label" data-i18n="blue"></label>
                             <input type="range" class="form-range" id="blueSlider" min="0" max="255" value="0">
                             <input type="number" class="form-control form-control-sm" id="blueInput" min="0" max="255" value="0">
                         </div>
                     </div>
 
                     <div class="palette-preview mt-4">
-                        <label>Palette:</label>
+                        <label data-i18n="palette"></label>
                         <div id="palettePreview" class="d-flex flex-wrap gap-2 mt-2"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" id="savePaletteBtn">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel"></button>
+                    <button type="button" class="btn btn-success" id="savePaletteBtn" data-i18n="saveChanges"></button>
                 </div>
             </div>
         </div>
