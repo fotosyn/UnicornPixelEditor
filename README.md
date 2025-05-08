@@ -4,6 +4,8 @@
 
 A powerful web-based editor for creating pixel art for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). Supports all Unicorn display types with accurate pixel representation and easy-to-use tools.
 
+![Unicorn Pixel Art Editor](images/unicorn-editor.png)
+
 ## Features
 
 - **Multi-Device Support**:
@@ -20,6 +22,7 @@ A powerful web-based editor for creating pixel art for [Pimoroni Unicorn LED pan
 - **Import/Export**:
   - Load from JSON files
   - Export as Python code
+  - Export as PNG image
   - View example templates
   - Import from images
 
@@ -52,11 +55,12 @@ No additional dependencies or setup required for basic usage.
 2. Choose a color from the palette
 3. Click or drag on the canvas to draw
 4. Use shift buttons to move your design
-5. Export your design as Python code
+5. Export your design as Python code or PNG image
 
 ### Working with Files
 - **Load JSON**: Import existing designs
 - **Export**: Generate Python code for your Unicorn display
+- **Export PNG**: Save your design as a PNG image
 - **Examples**: View sample templates for each display type
 
 ### Python Integration
