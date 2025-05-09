@@ -2,7 +2,7 @@
 
 ![Publisher](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fpublisher.json) ![Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffotosyn%2FUnicornPixelEditor%2Fmain%2Fversion.json)
 
-A powerful web-based editor for creating pixel art for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). Supports all Unicorn display types with accurate pixel representation and easy-to-use tools.
+A feature packed web-based editor for creating pixel art for [Pimoroni Unicorn LED panels](https://shop.pimoroni.com/products/space-unicorns). Supports all Unicorn display types with accurate pixel representation and easy-to-use tools.
 
 ![Unicorn Pixel Art Editor](images/unicorn-editor.png)
 
@@ -15,7 +15,7 @@ A powerful web-based editor for creating pixel art for [Pimoroni Unicorn LED pan
 
 - **Drawing Tools**:
   - Click or drag to draw pixels
-  - Customizable color palette
+  - Customisable colour palette
   - Shift controls (Left, Right, Up, Down)
   - Clear canvas function
 
@@ -52,7 +52,7 @@ No additional dependencies or setup required for basic usage.
 
 ### Basic Controls
 1. Select your Unicorn display type from the "Grid Size" dropdown
-2. Choose a color from the palette
+2. Choose a colour from the palette
 3. Click or drag on the canvas to draw
 4. Use shift buttons to move your design
 5. Export your design as Python code or PNG image
@@ -126,11 +126,11 @@ UnicornPixelEditor/
 - [MicroPython Documentation](https://docs.micropython.org/)
 - [Thonny IDE](https://thonny.org/)
 
-## License
+## Licence
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT Licence - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## Acknowledgements
 
 - Created by [Fotosyn](https://github.com/fotosyn/)
 - Contributors and community members

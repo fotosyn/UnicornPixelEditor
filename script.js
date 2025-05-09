@@ -317,6 +317,16 @@ function editPalette() {
             updateColorFromHex(hexInput.value);
         }
     });
+    
+    // Set up delete button handler
+    const deleteButton = document.getElementById('delete-color-btn');
+    if (deleteButton) {
+        deleteButton.addEventListener('click', () => {
+            if (selectedPaletteIndex > 0) { // Don't allow deleting the first color
+                handleColorDelete(selectedPaletteIndex);
+            }
+        });
+    }
 
     // Set up save button handler
     document.getElementById('savePaletteBtn').addEventListener('click', () => {
@@ -374,6 +384,16 @@ function selectPaletteColor(index) {
     document.getElementById('blueInput').value = rgb.b;
     document.getElementById('hexColorInput').value = color;
     document.getElementById('currentColorPreview').style.backgroundColor = color;
+    
+    // Update delete button visibility
+    const deleteColorBtn = document.getElementById('delete-color-btn');
+    if (deleteColorBtn) {
+        if (index > 0) {
+            deleteColorBtn.style.display = 'inline-block';
+        } else {
+            deleteColorBtn.style.display = 'none';
+        }
+    }
 
     // Update selected state in preview
     const swatches = document.querySelectorAll('#palettePreview .swatch');
@@ -2154,3 +2174,34 @@ document.addEventListener('DOMContentLoaded', function() {
   localisePage();
   // ...rest of your DOMContentLoaded code...
 });
+
+function handleColorDelete(index) {
+    // Don't allow deleting the first color (index 0)
+    if (index <= 0) return;
+    
+    // Get the color being deleted
+    const colorToDelete = paletteColors[index];
+    
+    // Remove the color from the palette
+    paletteColors.splice(index, 1);
+    
+    // If the selected color is the one being deleted, select color 0 instead
+    if (selectedPaletteIndex === index) {
+        selectPaletteColor(0);
+    } else if (selectedPaletteIndex > index) {
+        // If we were editing a color after the deleted one, adjust the index
+        selectedPaletteIndex--;
+    }
+    
+    // Remap pixels using this color to color 0 (black)
+    for (let x = 0; x < gridSize.width; x++) {
+        for (let y = 0; y < gridSize.height; y++) {
+            if (grid[x][y] === colorToDelete) {
+                grid[x][y] = paletteColors[0]; // Replace with color 0
+            }
+        }
+    }
+    
+    // Update the palette preview
+    updatePalettePreview();
+}

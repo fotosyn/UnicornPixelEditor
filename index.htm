@@ -229,7 +229,12 @@
                         <label data-i18n="selectedColor"></label>
                         <div class="d-flex align-items-center gap-3">
                             <div id="currentColorPreview" class="color-preview"></div>
-                            <input type="text" id="hexColorInput" class="form-control" placeholder="#000000" data-i18n-placeholder="hexColorPlaceholder">
+                            <div class="input-group">
+                                <input type="text" id="hexColorInput" class="form-control" placeholder="#000000" data-i18n-placeholder="hexColorPlaceholder">
+                                <button id="delete-color-btn" class="btn btn-danger" style="display: none;" title="Delete this color">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
